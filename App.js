@@ -5,6 +5,7 @@ const App = () => {
   return (
     <View>
       <Text>LOCAL-FRND-PRODUCER-APP</Text>
+      <Text>LOCAL-FRND-PRODUCER-APP</Text>
     </View>
   )
 }
