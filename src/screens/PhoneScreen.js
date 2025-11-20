@@ -1,4 +1,6 @@
 import React, { useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {userRegisterRequest} from "../features/Auth/authAction"
 import {
   View,
   Text,
@@ -19,14 +21,29 @@ import AnimatedLogo from "../components/SampleLogo/AnimatedLogo";
 const { width } = Dimensions.get("window");
 
 const PhoneScreen = ({ navigation }) => {
-  const [phone, setPhone] = useState("");
+  
+  const dispatch=useDispatch()
+  const [mobile_number, setMobile_number] = useState("");
+  
   const phoneInputRef = useRef(null);
 
-  const handlePhoneChange = (text) => {
-    const numeric = text.replace(/[^0-9]/g, "");
-    if (numeric.length <= 10) setPhone(numeric);
-  };
+ const handlePhoneChange = (text) => {
+  const numeric = text.replace(/[^0-9]/g, "");
 
+  if (numeric.length <= 10) {
+    setMobile_number(numeric);
+    
+
+    if (numeric.length === 10) {
+     
+  
+  console.log("Login Request Sent with:", numeric);
+}
+
+  }
+};
+
+  
   return (
     <BackgroundPagesOne>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -59,6 +76,7 @@ const PhoneScreen = ({ navigation }) => {
                 activeOpacity={1}
                 onPress={() =>
                   phoneInputRef.current && phoneInputRef.current.focus()
+                
                 }
                 style={styles.inputContainer}
               >
@@ -69,11 +87,13 @@ const PhoneScreen = ({ navigation }) => {
                   placeholder="Enter phone number"
                   placeholderTextColor="#bbb"
                   keyboardType="number-pad"
-                  value={phone}
+                  value={mobile_number}
                   onChangeText={handlePhoneChange}
                   maxLength={10}
                   returnKeyType="done"
+                   
                   autoFocus
+                  
                 />
               </TouchableOpacity>
 
@@ -88,13 +108,22 @@ const PhoneScreen = ({ navigation }) => {
               <TouchableOpacity
                 style={[
                   styles.nextButton,
-                  phone.length === 10 ? styles.nextActive : styles.nextDisabled,
+                  mobile_number.length === 10 ? styles.nextActive : styles.nextDisabled,
                 ]}
-                disabled={phone.length !== 10}
-                onPress={() => navigation.navigate("Otp", { phone })}
-                activeOpacity={phone.length === 10 ? 0.7 : 1}
+                disabled={mobile_number.length !== 10}
+               onPress={() => {
+                if (mobile_number.length == 10) 
+                   dispatch(userRegisterRequest({ mobile_number }));
+                  navigation.navigate("Otp", { mobile_number});
+
+                  return;
+                
+  
+}}
+
+                activeOpacity={mobile_number.length === 10 ? 0.7 : 1}
               >
-                <Text style={styles.nextText}>Next</Text>
+                <Text style={styles.nextText}>Next    </Text>
               </TouchableOpacity>
             </View>
           </ScrollView>
