@@ -5,13 +5,17 @@ import AnimatedLogo from "../components/SampleLogo/AnimatedLogo";
 import BackgroundPagesOne from "../components/BackgroundPages/BackgroundPagesOne";
 import{userLoginRequest, userOtpRequest} from "../features/Auth/authAction"
 import { useDispatch, useSelector } from "react-redux";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const OTP_LENGTH = 6;
 
 const OtpScreen = ({route, navigation }) => {
   const {success}=useSelector((state)=>state.userRegister)
   const {mode }=useSelector((state)=>state.userRegister)
+  const Otp=useSelector((state)=>state.userRegister.Otp)
+
   console.log(success) 
   console.log(mode) 
+  console.log(Otp.message)
 
   const{mobile_number}= route.params;
   console.log(mobile_number)
@@ -56,6 +60,38 @@ console.log(text)
   }
 };
 
+ 
+const handleotp = () => {
+  const otpString = otp.join("");
+  dispatch(userOtpRequest({ mobile_number, otp: otpString }));
+};
+// 👉 2. Watch Otp + mode, then save token & navigate
+useEffect(() => {
+  const saveTokenAndNavigate = async () => {
+    // first time Otp is null, second time it has data (as per logs)
+    if (Otp && Otp.success === true && Otp.token) {
+      try {
+        await AsyncStorage.setItem("twittoke", Otp.token);
+
+        const token1 = await AsyncStorage.getItem("twittoke");
+        console.log("saved token from storage:", token1);
+
+        if (mode === "login") {
+          navigation.navigate("Home");
+        } else {
+          navigation.navigate("DateofBirth");
+        }
+      } catch (err) {
+        console.log("error saving token:", err);
+      }
+    }
+  };
+
+  saveTokenAndNavigate();
+}, [Otp, mode, navigation]);
+
+
+ 
 
   return (
     <BackgroundPagesOne>
@@ -91,11 +127,10 @@ console.log(text)
             />
           ))}
         </View>
-
         <View style={styles.resendContainer}>
           <Text style={styles.resendText}>Didn’t get the code? </Text>
           <TouchableOpacity>
-            <Text style={styles.resendLink}>Resend</Text>
+            <Text style={styles.resendLink}>Resend </Text>
           </TouchableOpacity>
         </View>
 
@@ -103,16 +138,9 @@ console.log(text)
        <TouchableOpacity
   style={styles.nextButton}
   
-  onPress={() => {
+  onPress={() => {handleotp()
   
-const otpString = otp.join("");
-dispatch(userOtpRequest({ mobile_number, otp: otpString }));
-if (mode==="login"){
-  navigation.navigate("Home")
 
-}else{
-      navigation.navigate("DateofBirth")
-    } 
 
   
 }
