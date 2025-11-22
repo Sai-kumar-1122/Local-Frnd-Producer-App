@@ -8,8 +8,8 @@ import { useDispatch, useSelector } from "react-redux";
 const OTP_LENGTH = 6;
 
 const OtpScreen = ({route, navigation }) => {
-  const {success}=useSelector((state)=>state.userRegister)
-  const {mode }=useSelector((state)=>state.userRegister)
+  const {success}=useSelector((state)=>state.auth)
+  const {mode }=useSelector((state)=>state.auth)
   console.log(success) 
   console.log(mode) 
 
