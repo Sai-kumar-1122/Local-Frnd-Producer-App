@@ -70,11 +70,7 @@ function* handleUserOtp(action) {
 
 
 
-
-
-
-
-export default function* userSaga() {
+export default function* authSaga() {
   yield takeLatest(USER_REGISTER_FETCH_REQUEST,handleUserRegister);
   yield takeLatest(USER_LOGIN_FETCH_REQUEST,handleUserLogin)
   yield takeLatest(USER_OTP_FETCH_REQUEST,handleUserOtp);

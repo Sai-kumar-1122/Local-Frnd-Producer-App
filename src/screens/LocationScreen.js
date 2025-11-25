@@ -1,187 +1,153 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  Button,
+  StyleSheet,
+  PermissionsAndroid,
+  Platform,
+  Pressable,
+} from "react-native";
+import Geolocation from "@react-native-community/geolocation";
+import { useDispatch, useSelector } from "react-redux";
+import { useRoute, useNavigation } from "@react-navigation/native";
+import { userEditRequest } from "../features/user/userAction";
 
-const LocationScreen = ({ navigation }) => {
-  const [showPopup, setShowPopup] = useState(true);
+const LocationScreen = () => {
+  // ------------------ HOOKS MUST BE ON TOP ------------------
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
+  const route = useRoute();
 
-  const handlePermission = (type) => {
-    console.log("User selected:", type);
-    setShowPopup(false);
+  const { success, error, loading } = useSelector((state) => state.user);
 
-    // ⭐ Navigate to GenderScreen
-    navigation.navigate("GenderScreen");
+  const { name, gender, date_of_birth, age } = route.params;
+
+  const [location, setLocation] = useState(null);
+  const [permission, setPermission] = useState(null);
+
+  // ------------------ PERMISSION FUNCTION ------------------
+  const requestLocationPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        {
+          title: "Location Permission",
+          message: "Allow this app to access your location?",
+          buttonPositive: "Allow",
+        }
+      );
+
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        setPermission(true);
+        getCurrentLocation();
+      } else {
+        setPermission(false);
+      }
+    } catch (err) {
+      console.log("Permission Error:", err);
+    }
+  };
+
+  // ------------------ GET LOCATION ------------------
+  const getCurrentLocation = () => {
+    Geolocation.getCurrentPosition(
+      (position) => setLocation(position.coords),
+      (error) => {
+        console.log("Location Error:", error);
+        setLocation(null);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 5000 }
+    );
+  };
+
+  // ------------------ RUN ON SCREEN OPEN ------------------
+  useEffect(() => {
+    requestLocationPermission();
+  }, []);
+
+  // ------------------ BACKEND RESPONSE HANDLING ------------------
+  useEffect(() => {
+    if (success === false && error) {
+      alert(error.message || "Something went wrong");
+    }
+
+    if (success === true) {
+      alert("Profile updated successfully!");
+      navigation.navigate("Home");
+    }
+  }, [success, error]);
+
+  // ------------------ SUBMIT ------------------
+  const handleSubmit = () => {
+    if (!location) return alert("Location not detected.");
+
+    const finalUserData = {
+      name,
+      gender,
+      date_of_birth,
+      age,
+      location_lat: location.latitude,
+      location_log: location.longitude,
+    };
+
+    dispatch(userEditRequest(finalUserData));
   };
 
   return (
     <View style={styles.container}>
-      {/* -------- BACKGROUND IMAGE -------- */}
-      <Image
-        source={require("../assets/mapimage.jpg")} 
-        style={styles.bgImage}
-      />
+      <Text style={styles.title}>Location Access</Text>
 
-      {/* -------- LANGUAGE CONTENT -------- */}
-      <View style={styles.languageBox}>
-        <Text style={styles.heading}>Select your language</Text>
-        <Text style={styles.subheading}>
-          Show your language proudly, get better matches
-        </Text>
+      {/* ---------- Permission Denied ---------- */}
+      {permission === false && (
+        <>
+          <Text style={styles.errorText}>Permission Denied</Text>
+          <Button title="Retry Permission" onPress={requestLocationPermission} />
+        </>
+      )}
 
-        <View style={styles.langRow}>
-          <Text style={styles.langItem}>Hindi</Text>
-          <Text style={styles.langItem}>Telugu</Text>
-          <Text style={styles.langItem}>Bengali</Text>
-        </View>
-      </View>
-
-      {/* -------- LOCATION POPUP -------- */}
-      {showPopup && (
-        <View style={styles.popupContainer}>
-          <View style={styles.sheet}>
-            <Text style={styles.icon}>📍</Text>
-
-            <Text style={styles.title}>
-              Allow <Text style={{ fontWeight: "bold" }}>FRND</Text> to access
-              this device’s location?
-            </Text>
-
-            {/* MAP OPTIONS */}
-            <View style={styles.row}>
-              {/* Precise */}
-              <View style={styles.option}>
-                <Image
-                  source={require("../assets/map.jpg")}
-                  style={styles.mapImage}
-                />
-                <Text style={styles.optionText}>Precise</Text>
-              </View>
-
-              {/* Approximate */}
-              <View style={styles.option}>
-                <Image
-                  source={require("../assets/map2.png")}
-                  style={styles.mapImage}
-                />
-                <Text style={styles.optionText}>Approximate</Text>
-              </View>
-            </View>
-
-            {/* BUTTONS */}
-            <TouchableOpacity
-              style={styles.btn}
-              onPress={() => handlePermission("while-app")}
-            >
-              <Text style={styles.btnText}>While using the app</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.btn}
-              onPress={() => handlePermission("only-once")}
-            >
-              <Text style={styles.btnText}>Only this time</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={() => handlePermission("deny")}>
-              <Text style={styles.denyText}>Don't allow</Text>
-            </TouchableOpacity>
-          </View>
+      {/* ---------- Coordinates Found ---------- */}
+      {permission === true && location && (
+        <View style={styles.box}>
+          <Text>Latitude: {location.latitude}</Text>
+          <Text>Longitude: {location.longitude}</Text>
         </View>
       )}
+
+      {/* ---------- Try Again ---------- */}
+      {permission === true && !location && (
+        <>
+          <Text style={styles.errorText}>Location not found</Text>
+          <Button title="Try Again" onPress={getCurrentLocation} />
+        </>
+      )}
+
+      <Pressable style={styles.submitButton} onPress={handleSubmit}>
+        <Text style={styles.submitText}>
+          {loading ? "Submitting..." : "Submit"}
+        </Text>
+      </Pressable>
     </View>
   );
 };
 
-export default LocationScreen;
-
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-
-  /* Background image */
-  bgImage: {
-    width: "100%",
-    height: "100%",
-    position: "absolute",
-    resizeMode: "cover",
-    opacity: 0.3,
+  container: { flex: 1, padding: 20, justifyContent: "center" },
+  title: { fontSize: 22, fontWeight: "bold", textAlign: "center" },
+  errorText: { color: "red", textAlign: "center", marginBottom: 10 },
+  box: {
+    backgroundColor: "#ededed",
+    padding: 20,
+    borderRadius: 12,
+    marginVertical: 20,
   },
-
-  /* Language Section */
-  languageBox: {
-    paddingTop: 80,
-    alignItems: "center",
+  submitButton: {
+    backgroundColor: "#ff1983",
+    padding: 15,
+    borderRadius: 20,
+    marginTop: 30,
   },
-  heading: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#4A2F00",
-  },
-  subheading: {
-    fontSize: 14,
-    color: "#4A2F00",
-    marginBottom: 20,
-  },
-  langRow: {
-    flexDirection: "row",
-    gap: 20,
-    marginTop: 20,
-  },
-  langItem: {
-    backgroundColor: "#FFF",
-    paddingVertical: 10,
-    paddingHorizontal: 25,
-    borderRadius: 10,
-    elevation: 3,
-  },
-
-  /* Popup */
-  popupContainer: {
-    position: "absolute",
-    bottom: 0,
-    width: "100%",
-  },
-
-  sheet: {
-    backgroundColor: "white",
-    borderTopLeftRadius: 25,
-    borderTopRightRadius: 25,
-    padding: 25,
-    alignItems: "center",
-  },
-  icon: { fontSize: 35, marginBottom: 10 },
-  title: {
-    fontSize: 17,
-    textAlign: "center",
-    marginBottom: 20,
-    color: "#333",
-    lineHeight: 22,
-  },
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "90%",
-    marginBottom: 25,
-  },
-  option: { alignItems: "center" },
-  optionText: { marginTop: 8, fontSize: 15, color: "#333" },
-  mapImage: {
-    width: 110,
-    height: 110,
-    borderRadius: 60,
-    resizeMode: "cover",
-  },
-  btn: {
-    paddingVertical: 12,
-    width: "100%",
-    alignItems: "center",
-  },
-  btnText: {
-    fontSize: 17,
-    color: "#007AFF",
-    fontWeight: "500",
-  },
-  denyText: {
-    fontSize: 17,
-    color: "red",
-    marginTop: 10,
-  },
+  submitText: { color: "#fff", fontSize: 18, textAlign: "center" },
 });
+
+export default LocationScreen;
