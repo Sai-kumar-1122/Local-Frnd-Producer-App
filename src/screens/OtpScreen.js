@@ -15,7 +15,7 @@ const OtpScreen = ({route, navigation }) => {
 
   console.log(success) 
   console.log(mode) 
-  console.log(Otp.message)
+  console.log(Otp)
 
   const{mobile_number}= route.params;
   console.log(mobile_number)
