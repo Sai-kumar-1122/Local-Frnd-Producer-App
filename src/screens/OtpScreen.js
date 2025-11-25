@@ -1,97 +1,98 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Platform } from "react-native";
+import {
+  View, Text, StyleSheet, TouchableOpacity,
+  TextInput, Platform, Alert
+} from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import AnimatedLogo from "../components/SampleLogo/AnimatedLogo";
 import BackgroundPagesOne from "../components/BackgroundPages/BackgroundPagesOne";
-import{userLoginRequest, userOtpRequest} from "../features/Auth/authAction"
+import { userLoginRequest, userOtpRequest } from "../features/Auth/authAction";
 import { useDispatch, useSelector } from "react-redux";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
 const OTP_LENGTH = 6;
 
-const OtpScreen = ({route, navigation }) => {
-  const {success}=useSelector((state)=>state.userRegister)
-  const {mode }=useSelector((state)=>state.userRegister)
-  const Otp=useSelector((state)=>state.userRegister.Otp)
+const OtpScreen = ({ route, navigation }) => {
+  const { success } = useSelector((state) => state.auth);
+  const { mode } = useSelector((state) => state.auth);
+  const Otp = useSelector((state) => state.auth.Otp);
 
-  console.log(success) 
-  console.log(mode) 
-  console.log(Otp.message)
+  const { mobile_number } = route.params;
+  const dispatch = useDispatch();
 
-  const{mobile_number}= route.params;
-  console.log(mobile_number)
-  const dispatch=useDispatch()
-  
-    useEffect(() => {
-  if (success == false) {
-    dispatch(userLoginRequest({mobile_number}));
-  }
-}, [success, mobile_number, dispatch]);
+  useEffect(() => {
+    if (success === false) {
+      dispatch(userLoginRequest({ mobile_number }));
+    }
+  }, [success, mobile_number, dispatch]);
 
-  
   const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(""));
   const inputRefs = useRef([...Array(OTP_LENGTH)].map(() => React.createRef()));
-console.log(otp)
+
   const handleChange = (text, idx) => {
-    if (text.length > 1) text = text.charAt(text.length - 1);
+    if (text.length > 1) text = text.slice(-1);
+
     const newOtp = [...otp];
     newOtp[idx] = text;
     setOtp(newOtp);
-console.log(text)
+
     if (text && idx < OTP_LENGTH - 1) {
       inputRefs.current[idx + 1].current.focus();
     }
   };
 
   const handleKeyPress = (e, idx) => {
-  if (e.nativeEvent.key === "Backspace") {
-    // If current field is empty, move to previous and erase its value
-    if (!otp[idx] && idx > 0) {
-      const newOtp = [...otp];
-      newOtp[idx - 1] = "";
-      setOtp(newOtp);
-      inputRefs.current[idx - 1].current.focus();
-    }
-    // If current field has value, clear it
-    if (otp[idx]) {
-      const newOtp = [...otp];
-      newOtp[idx] = "";
-      setOtp(newOtp);
-    }
-  }
-};
-
- 
-const handleotp = () => {
-  const otpString = otp.join("");
-  dispatch(userOtpRequest({ mobile_number, otp: otpString }));
-};
-// 👉 2. Watch Otp + mode, then save token & navigate
-useEffect(() => {
-  const saveTokenAndNavigate = async () => {
-    // first time Otp is null, second time it has data (as per logs)
-    if (Otp && Otp.success === true && Otp.token) {
-      try {
-        await AsyncStorage.setItem("twittoke", Otp.token);
-
-        const token1 = await AsyncStorage.getItem("twittoke");
-        console.log("saved token from storage:", token1);
-
-        if (mode === "login") {
-          navigation.navigate("Home");
-        } else {
-          navigation.navigate("DateofBirth");
-        }
-      } catch (err) {
-        console.log("error saving token:", err);
+    if (e.nativeEvent.key === "Backspace") {
+      if (!otp[idx] && idx > 0) {
+        const newOtp = [...otp];
+        newOtp[idx - 1] = "";
+        setOtp(newOtp);
+        inputRefs.current[idx - 1].current.focus();
+      } else {
+        const newOtp = [...otp];
+        newOtp[idx] = "";
+        setOtp(newOtp);
       }
     }
   };
 
-  saveTokenAndNavigate();
-}, [Otp, mode, navigation]);
+  const handleotp = () => {
+    const otpString = otp.join("");
+    dispatch(userOtpRequest({ mobile_number, otp: otpString }));
+  };
+
+  // 👉 CHECK OTP RESPONSE (SUCCESS OR FAILURE)
+  useEffect(() => {
+    if (!Otp) return;
+
+    // ❌ Wrong OTP → Show alert
+    if (Otp.success === false) {
+      Alert.alert("Invalid OTP", Otp.message || "Please try again.");
+      return;
+    }
+
+    // ✅ Correct OTP → save & navigate
+    const saveTokenAndNavigate = async () => {
+      if (Otp.success === true && Otp.token) {
+        try {
+          await AsyncStorage.setItem("twittoke", String(Otp.token));
+          await AsyncStorage.setItem("user_id", `${Otp.user.user_id}`);
 
 
- 
+          if (mode === "login") {
+            navigation.navigate("Home");
+          } else {
+            navigation.navigate("DateofBirth");
+          }
+        } catch (err) {
+          console.log("Error saving token:", err);
+        }
+      }
+    };
+
+    saveTokenAndNavigate();
+  }, [Otp, mode, navigation]);
+
 
   return (
     <BackgroundPagesOne>
@@ -102,6 +103,7 @@ useEffect(() => {
         >
           <Icon name="chevron-back" size={26} color="#fff" />
         </TouchableOpacity>
+
         <View style={styles.logoSpace}>
           <AnimatedLogo />
         </View>
@@ -121,35 +123,22 @@ useEffect(() => {
               keyboardType="number-pad"
               value={digit}
               onChangeText={(text) => handleChange(text, idx)}
-  onKeyPress={(e) => handleKeyPress(e, idx)}
-              returnKeyType="done"
+              onKeyPress={(e) => handleKeyPress(e, idx)}
               autoFocus={idx === 0}
             />
           ))}
         </View>
+
         <View style={styles.resendContainer}>
           <Text style={styles.resendText}>Didn’t get the code? </Text>
           <TouchableOpacity>
-            <Text style={styles.resendLink}>Resend </Text>
+            <Text style={styles.resendLink}>Resend</Text>
           </TouchableOpacity>
         </View>
 
-        {/* ✅ Navigate to Home */}
-       <TouchableOpacity
-  style={styles.nextButton}
-  
-  onPress={() => {handleotp()
-  
-
-
-  
-}
-    
-  }
->
-  <Text style={styles.nextText}>Next</Text>
-</TouchableOpacity>
-
+        <TouchableOpacity style={styles.nextButton} onPress={handleotp}>
+          <Text style={styles.nextText}>Next</Text>
+        </TouchableOpacity>
       </View>
     </BackgroundPagesOne>
   );

@@ -1,28 +1,32 @@
+import { call, put, takeLatest } from "redux-saga/effects";
 import axios from "axios";
-import { userEditFailed, userEditSuccess } from "./userAction";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+import { userEditSuccess, userEditFailed } from "./userAction";
 import { USER_EDIT_REQUEST } from "./userType";
-import {user_Edit} from "../../api/userApi"
-import { call, takeLatest } from "redux-saga/effects";
+import { user_Edit } from "../../api/userApi";
 
 function* handleUserEdit(action) {
   try {
-    console.log("🚀 Saga received data:", action.payload);
-    console.log("🌐  API URL:", user_Register);
+    console.log("Saga Received:", action.payload);
+
+    const token = yield call([AsyncStorage, "getItem"], "twittoke");
+    const user_id = yield call([AsyncStorage, "getItem"], "user_id");
+
     const response = yield call(() =>
-      axios.post(user_Edit, action.payload)
+      axios.put(`${user_Edit}/${user_id}`, action.payload, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
     );
-    console.log("📥 API Response:", response.data);
+
     yield put(userEditSuccess(response.data));
 
   } catch (error) {
-    const errorMsg = error.response?.data?.message || error.message;
-    console.log("❌ API Error:", errorMsg);
-
-    yield put(userEditFailed(errorMsg));   // ✔️ FIXED
+    const msg = error.response?.data?.message || error.message;
+    yield put(userEditFailed(msg));
   }
 }
-export default function* userSaga() {
-  yield takeLatest(USER_EDIT_REQUEST,handleUserEdit);
-  
 
+export default function* userSaga() {
+  yield takeLatest(USER_EDIT_REQUEST, handleUserEdit);
 }
