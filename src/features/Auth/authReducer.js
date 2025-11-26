@@ -21,7 +21,7 @@ const initialState = {
 
 };
 
-export default function userReducer(state = initialState, action) {
+export default function authReducer(state = initialState, action) {
   console.log(action.payload)
   switch (action.type) {
     case USER_REGISTER_FETCH_REQUEST:
