@@ -41,10 +41,15 @@ const HomeScreen = () => {
               <Text style={styles.coinText}>100</Text>
             </View>
 
-            <Image
-              source={require("../assets/boy4.jpg")}
-              style={styles.profilePic}
-            />
+            <TouchableOpacity
+      onPress={() => navigation.navigate("UplodePhotoScreen")}
+      activeOpacity={0.7}
+    >
+      <Image
+        source={require("../assets/boy4.jpg")}
+        style={styles.profilePic}
+      />
+    </TouchableOpacity>
           </View>
         </View>
 
