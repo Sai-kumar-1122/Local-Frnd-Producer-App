@@ -20,6 +20,7 @@ import DobGenderScreen from './src/screens/DateofBirth';
 import LocationScreen from "./src/screens/LocationScreen"
 import ProfileScreen from "./src/screens/ProfileScreen"
 import PlanScreen from "./src/screens/PlansScreen"
+import UplodePhotoScreen from './src/screens/UplodePhotoScreen';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -41,6 +42,7 @@ export default function App() {
           <Stack.Screen name="LocationScreen" component={LocationScreen} />
         <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
         <Stack.Screen name="PlanScreen" component={PlanScreen} />
+        <Stack.Screen name="UplodePhotoScreen" component={UplodePhotoScreen} />
 
       </Stack.Navigator>
       </NavigationContainer>
