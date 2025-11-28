@@ -14,6 +14,7 @@ function* handleUserRegister(action) {
     console.log("🌐 API URL:", user_Register);
     const response = yield call(() =>
       axios.post(user_Register, action.payload)
+    
     );
     console.log("📥 API Response:", response.data);
     yield put(userRegisterSuccess(response.data));

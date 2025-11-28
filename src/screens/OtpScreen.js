@@ -76,7 +76,8 @@ const OtpScreen = ({ route, navigation }) => {
 
     // ✅ Correct OTP → save & navigate
     const saveTokenAndNavigate = async () => {
-      if (Otp.success === true && Otp.token) {
+      if (Otp.success === true && Otp.token) { 
+        
         try {
           await AsyncStorage.setItem("twittoke", String(Otp.token));
           await AsyncStorage.setItem("user_id", `${Otp.user.user_id}`);

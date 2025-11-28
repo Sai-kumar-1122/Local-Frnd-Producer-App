@@ -8,46 +8,108 @@ import {
   Image,
   Dimensions,
   ScrollView,
+  Alert,
 } from "react-native";
+import { PermissionsAndroid } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import { launchCamera, launchImageLibrary } from "react-native-image-picker";
 import { useNavigation } from "@react-navigation/native";
+import { useDispatch } from "react-redux";
+import { userpostphotorequest } from "../features/photo/photoAction";
 
 const { width } = Dimensions.get("window");
 
 const UplodePhotoScreen = () => {
+  const dispatch=useDispatch()
   const [photo, setPhoto] = useState(null);
+  
 const navigation = useNavigation();
-
-  // 📸 Open Camera
-  const openCamera = () => {
-    launchCamera(
+const requestCameraPermission=async()=>{
+  try {
+    
+    const granted=await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.CAMERA,
       {
-        mediaType: "photo",
-        cameraType: "back",
-        saveToPhotos: true,
-      },
-      (response) => {
-        if (response.didCancel) return;
-        if (response.errorMessage) return;
+        title:"Camera Permission",
+        message:"App needs access to your camera",
+        buttonNeutral:"Ask me Later",
+        buttonNegative:"cancel",
+        buttonPositive:"Ok",
 
-        setPhoto(response.assets[0].uri);
       }
     );
+    return granted=== PermissionsAndroid.RESULTS.GRANTED
+  } catch (error) {
+    console.warn(err);
+    return false;
+    
+  }
+}
+
+  // 📸 Open Camera
+  const openCamera =async () => {
+    const Permission=await requestCameraPermission()
+    if (!Permission){
+      return Alert("Camera permission denied")
+    }
+    launchCamera(
+  {
+    mediaType: "photo",
+    cameraType: "back",
+    quality: 1,
+  },
+  (response) => {
+    if (response.didCancel || response.errorCode) return;
+
+    if (response.assets?.length > 0) {
+      setPhoto(response.assets[0].uri); // ⭐ Needed for FormData upload
+    }
+  }
+);
+
+
   };
 
   // 🖼 Open Gallery
   const openGallery = () => {
     launchImageLibrary(
-      { mediaType: "photo" },
+      { mediaType: "photo",
+        includeBase64: true,
+    quality: 0.7,
+       },
       (response) => {
         if (response.didCancel) return;
         if (response.errorMessage) return;
 
-        setPhoto(response.assets[0].uri);
-      }
+if (response.assets?.length > 0) {
+      const base64 = `data:${response.assets[0].type};base64,${response.assets[0].base64}`;
+      setPhoto(base64);
+    }      }
     );
   };
+ 
+const handlesendphoto = () => {
+  if (!photo) {
+    Alert.alert("Please select an image first");
+    return;
+  }
+
+  const formData = new FormData();
+
+  // Upload actual file for multer
+  formData.append("photo", {
+    uri: photo,
+    type: "image/jpeg",
+    name: `photo_${Date.now()}.jpg`,
+  });
+
+  // Additional metadata fields
+  formData.append("photo_url", photo);     // backend can ignore or use
+  formData.append("is_primary", true);     // or false
+  formData.append("status", "active");
+
+  dispatch(userpostphotorequest(formData));
+};
 
   return (
     <LinearGradient
@@ -100,8 +162,10 @@ const navigation = useNavigation();
   style={styles.nextButton}
   onPress={() => navigation.navigate("Home")}
 >
-  <Text style={styles.nextText}>NEXT →</Text>
+  <TouchableOpacity onPress={handlesendphoto}><Text style={styles.nextText} >NEXT →</Text></TouchableOpacity>
+  
 </TouchableOpacity>
+
 
 
       </ScrollView>
