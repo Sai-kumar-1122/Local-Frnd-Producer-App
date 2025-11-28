@@ -17,6 +17,9 @@ const OtpScreen = ({ route, navigation }) => {
   const { mode } = useSelector((state) => state.auth);
   const Otp = useSelector((state) => state.auth.Otp);
 
+  console.log(success) 
+  console.log(mode) 
+  console.log(Otp) 
   const { mobile_number } = route.params;
   const dispatch = useDispatch();
 
@@ -73,7 +76,8 @@ const OtpScreen = ({ route, navigation }) => {
 
     // ✅ Correct OTP → save & navigate
     const saveTokenAndNavigate = async () => {
-      if (Otp.success === true && Otp.token) {
+      if (Otp.success === true && Otp.token) { 
+        
         try {
           await AsyncStorage.setItem("twittoke", String(Otp.token));
           await AsyncStorage.setItem("user_id", `${Otp.user.user_id}`);
