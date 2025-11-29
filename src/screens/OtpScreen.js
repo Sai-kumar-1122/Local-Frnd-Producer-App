@@ -1,7 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
-  View, Text, StyleSheet, TouchableOpacity,
-  TextInput, Platform, Alert
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+  Platform,
+  Alert,
+  KeyboardAvoidingView,
+  ScrollView,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import AnimatedLogo from "../components/SampleLogo/AnimatedLogo";
@@ -13,10 +20,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const OTP_LENGTH = 6;
 
 const OtpScreen = ({ route, navigation }) => {
-  const { success } = useSelector((state) => state.auth);
-  const { mode } = useSelector((state) => state.auth);
-  const Otp = useSelector((state) => state.auth.Otp);
-
+  // keep your auth state selectors exactly as before
+  const { success, mode, Otp } = useSelector((state) => state.auth);
   const { mobile_number } = route.params;
   const dispatch = useDispatch();
 
@@ -27,27 +32,47 @@ const OtpScreen = ({ route, navigation }) => {
   }, [success, mobile_number, dispatch]);
 
   const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(""));
-  const inputRefs = useRef([...Array(OTP_LENGTH)].map(() => React.createRef()));
+  // callback refs array so focus() always refers to real TextInput
+  const inputRefs = useRef([]);
 
+  // change handler: handles typing and deletion robustly
   const handleChange = (text, idx) => {
-    if (text.length > 1) text = text.slice(-1);
+    // keep only last char if user pastes
+    const char = text ? text.slice(-1) : "";
 
     const newOtp = [...otp];
-    newOtp[idx] = text;
+    newOtp[idx] = char;
     setOtp(newOtp);
 
-    if (text && idx < OTP_LENGTH - 1) {
-      inputRefs.current[idx + 1].current.focus();
+    if (char) {
+      // move forward
+      if (idx < OTP_LENGTH - 1) {
+        const next = inputRefs.current[idx + 1];
+        if (next && next.focus) next.focus();
+      } else {
+        // optionally blur last input to hide keyboard
+        const cur = inputRefs.current[idx];
+        if (cur && cur.blur) cur.blur();
+      }
+    } else {
+      // if cleared this input, move focus to previous (helpful on Android)
+      if (idx > 0) {
+        const prev = inputRefs.current[idx - 1];
+        if (prev && prev.focus) prev.focus();
+      }
     }
   };
 
+  // onKeyPress fallback (keeps your Backspace behavior for platforms that support it)
   const handleKeyPress = (e, idx) => {
-    if (e.nativeEvent.key === "Backspace") {
+    if (e.nativeEvent && e.nativeEvent.key === "Backspace") {
+      // if current already empty, move to previous and clear it
       if (!otp[idx] && idx > 0) {
         const newOtp = [...otp];
         newOtp[idx - 1] = "";
         setOtp(newOtp);
-        inputRefs.current[idx - 1].current.focus();
+        const prev = inputRefs.current[idx - 1];
+        if (prev && prev.focus) prev.focus();
       } else {
         const newOtp = [...otp];
         newOtp[idx] = "";
@@ -61,23 +86,20 @@ const OtpScreen = ({ route, navigation }) => {
     dispatch(userOtpRequest({ mobile_number, otp: otpString }));
   };
 
-  // 👉 CHECK OTP RESPONSE (SUCCESS OR FAILURE)
+  // OTP response handling unchanged
   useEffect(() => {
     if (!Otp) return;
 
-    // ❌ Wrong OTP → Show alert
     if (Otp.success === false) {
       Alert.alert("Invalid OTP", Otp.message || "Please try again.");
       return;
     }
 
-    // ✅ Correct OTP → save & navigate
     const saveTokenAndNavigate = async () => {
       if (Otp.success === true && Otp.token) {
         try {
           await AsyncStorage.setItem("twittoke", String(Otp.token));
           await AsyncStorage.setItem("user_id", `${Otp.user.user_id}`);
-
 
           if (mode === "login") {
             navigation.navigate("Home");
@@ -93,53 +115,70 @@ const OtpScreen = ({ route, navigation }) => {
     saveTokenAndNavigate();
   }, [Otp, mode, navigation]);
 
-
   return (
     <BackgroundPagesOne>
-      <View style={styles.inner}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 20}
+      >
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+          showsVerticalScrollIndicator={false}
+          bounces={false}
+          keyboardShouldPersistTaps="handled"
         >
-          <Icon name="chevron-back" size={26} color="#fff" />
-        </TouchableOpacity>
+          <View style={styles.inner}>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => navigation.goBack()}
+            >
+              <Icon name="chevron-back" size={26} color="#fff" />
+            </TouchableOpacity>
 
-        <View style={styles.logoSpace}>
-          <AnimatedLogo />
-        </View>
+            <View style={styles.logoSpace}>
+              <AnimatedLogo />
+            </View>
 
-        <Text style={styles.title}>Enter the code we sent you</Text>
-        <Text style={styles.subTitle}>
-          We’ve sent a 6-digit code to your number.
-        </Text>
+            <Text style={styles.title}>Enter the code we sent you</Text>
+            <Text style={styles.subTitle}>
+              We’ve sent a 6-digit code to your number.
+            </Text>
 
-        <View style={styles.otpContainer}>
-          {otp.map((digit, idx) => (
-            <TextInput
-              key={idx}
-              ref={inputRefs.current[idx]}
-              style={styles.otpInput}
-              maxLength={1}
-              keyboardType="number-pad"
-              value={digit}
-              onChangeText={(text) => handleChange(text, idx)}
-              onKeyPress={(e) => handleKeyPress(e, idx)}
-              autoFocus={idx === 0}
-            />
-          ))}
-        </View>
+            <View style={styles.otpContainer}>
+              {Array.from({ length: OTP_LENGTH }).map((_, idx) => (
+                <TextInput
+                  key={idx}
+                  ref={(el) => (inputRefs.current[idx] = el)}
+                  style={styles.otpInput}
+                  maxLength={1}
+                  keyboardType={Platform.OS === "ios" ? "number-pad" : "numeric"}
+                  value={otp[idx]}
+                  onChangeText={(text) => handleChange(text, idx)}
+                  onKeyPress={(e) => handleKeyPress(e, idx)}
+                  autoFocus={idx === 0}
+                  returnKeyType="done"
+                  // helpful for OTP autofill on iOS/Android
+                  textContentType="oneTimeCode"
+                  importantForAutofill="yes"
+                  autoComplete={Platform.OS === "android" ? "sms-otp" : undefined}
+                />
+              ))}
+            </View>
 
-        <View style={styles.resendContainer}>
-          <Text style={styles.resendText}>Didn’t get the code? </Text>
-          <TouchableOpacity>
-            <Text style={styles.resendLink}>Resend</Text>
-          </TouchableOpacity>
-        </View>
+            <View style={styles.resendContainer}>
+              <Text style={styles.resendText}>Didn’t get the code? </Text>
+              <TouchableOpacity>
+                <Text style={styles.resendLink}>Resend</Text>
+              </TouchableOpacity>
+            </View>
 
-        <TouchableOpacity style={styles.nextButton} onPress={handleotp}>
-          <Text style={styles.nextText}>Next</Text>
-        </TouchableOpacity>
-      </View>
+            <TouchableOpacity style={styles.nextButton} onPress={handleotp}>
+              <Text style={styles.nextText}>Next</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </BackgroundPagesOne>
   );
 };
@@ -147,7 +186,7 @@ const OtpScreen = ({ route, navigation }) => {
 export default OtpScreen;
 
 const styles = StyleSheet.create({
-  inner: { flex: 1, paddingHorizontal: 25, paddingTop: 60 },
+  inner: { flex: 1, paddingHorizontal: 25, paddingTop: 60, paddingBottom: 40 },
   backButton: { position: "absolute", top: 40, left: 20, zIndex: 10 },
   logoSpace: {
     marginTop: Platform.OS === "ios" ? 44 : 30,
