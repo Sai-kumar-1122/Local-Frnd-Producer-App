@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   View,
   Text,
@@ -9,6 +9,8 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
+import { useDispatch, useSelector } from "react-redux";
+import { userDatarequest } from "../features/user/userAction";
 
 const activePals = [
   { id: 1, name: "Aadhya", img: require("../assets/girl1.jpg") },
@@ -18,7 +20,25 @@ const activePals = [
 ];
 
 const HomeScreen = () => {
+  const dispatch = useDispatch();
   const navigation = useNavigation();
+
+  const { userdata, loading } = useSelector((state) => state.user);
+
+  useEffect(() => {
+    dispatch(userDatarequest());
+  }, []);
+
+  // ⛔ Prevent crash while data loads
+  if (!userdata || loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text style={{ color: "#fff", fontSize: 18 }}>
+          Loading user data...
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: "#0A001A" }}>
@@ -36,20 +56,22 @@ const HomeScreen = () => {
               <Icon name="bell-outline" size={26} color="#fff" />
             </TouchableOpacity>
 
+            {/* COINS */}
             <View style={styles.coinBox}>
               <Icon name="currency-eth" size={20} color="#FFD700" />
-              <Text style={styles.coinText}>100</Text>
+              <Text style={styles.coinText}>{userdata?.coin_balance ?? 0}</Text>
             </View>
 
+            {/* PROFILE PIC */}
             <TouchableOpacity
-      onPress={() => navigation.navigate("UplodePhotoScreen")}
-      activeOpacity={0.7}
-    >
-      <Image
-        source={require("../assets/boy4.jpg")}
-        style={styles.profilePic}
-      />
-    </TouchableOpacity>
+              onPress={() => navigation.navigate("UplodePhotoScreen")}
+              activeOpacity={0.7}
+            >
+              <Image
+                source={require("../assets/boy4.jpg")}
+                style={styles.profilePic}
+              />
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -122,7 +144,7 @@ const HomeScreen = () => {
         <View style={{ height: 130 }} />
       </ScrollView>
 
-      {/* BOTTOM NAV */}
+      {/* Bottom Nav */}
       <View style={styles.bottomNav}>
 
         <TouchableOpacity style={styles.navItem}>
@@ -133,17 +155,14 @@ const HomeScreen = () => {
           <Icon name="message-outline" size={28} color="#fff" />
         </TouchableOpacity>
 
-        {/* Center CALL Button */}
         <TouchableOpacity style={styles.centerBtn}>
           <Icon name="phone" size={32} color="#fff" />
         </TouchableOpacity>
 
-        {/* Time Icon */}
         <TouchableOpacity style={styles.navItem}>
           <Icon name="clock-time-eight-outline" size={28} color="#fff" />
         </TouchableOpacity>
 
-        {/* Navigate to Profile */}
         <TouchableOpacity
           style={styles.navItem}
           onPress={() => navigation.navigate("ProfileScreen")}
@@ -158,8 +177,8 @@ const HomeScreen = () => {
 
 export default HomeScreen;
 
-/* ================== STYLES ================== */
 
+/* STYLES */
 const styles = StyleSheet.create({
   container: { paddingHorizontal: 20, paddingTop: 50 },
 
@@ -173,6 +192,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "900",
   },
+
   subText: {
     color: "#c7b7ff",
     fontSize: 12,
@@ -194,6 +214,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginRight: 10,
   },
+
   coinText: {
     color: "#FFD700",
     fontSize: 15,
@@ -209,7 +230,6 @@ const styles = StyleSheet.create({
     borderColor: "#ff00ff",
   },
 
-  /* OFFER CARD */
   offerCard: {
     marginTop: 25,
     backgroundColor: "#1a0033",
@@ -218,27 +238,31 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#5b009e",
   },
+
   offerTag: {
     color: "#ff47ff",
     fontWeight: "800",
     fontSize: 14,
     marginBottom: 8,
   },
+
   offerTitle: {
     color: "#fff",
     fontSize: 17,
     fontWeight: "700",
     marginBottom: 12,
   },
+
   claimBtn: {
     backgroundColor: "#ff00ff",
     paddingVertical: 10,
     borderRadius: 12,
     alignItems: "center",
   },
+
   claimText: { color: "#fff", fontWeight: "800", fontSize: 15 },
 
-  /* ACTIVE PALS */
+  /* Active Pals */
   sectionTitle: {
     color: "#fff",
     fontSize: 19,
@@ -278,7 +302,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
 
-  /* CONNECT ROW */
+  /* Connect Row */
   connectRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -327,7 +351,6 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
 
-  /* BOTTOM NAV */
   bottomNav: {
     position: "absolute",
     bottom: 0,
