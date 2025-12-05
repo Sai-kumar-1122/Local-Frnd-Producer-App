@@ -19,7 +19,7 @@ const LocationScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
 
-  const { success, error, loading } = useSelector((state) => state.user);
+  const { success, error, loading, result } = useSelector((state) => state.user);
 
   const { name, gender, date_of_birth, age } = route.params;
 
@@ -73,8 +73,8 @@ const LocationScreen = () => {
     }
 
     if (success === true) {
-      alert("Profile updated successfully!");
-      navigation.navigate("Home");
+      alert(result.message);
+      navigation.navigate("UplodePhotoScreen");
     }
   }, [success, error]);
 

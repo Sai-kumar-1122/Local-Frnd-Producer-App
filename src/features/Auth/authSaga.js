@@ -16,7 +16,7 @@ function* handleUserRegister(action) {
       axios.post(user_Register, action.payload)
     
     );
-    console.log("📥 API Response:", response.data);
+    console.log("📥 API Response:", response);
     yield put(userRegisterSuccess(response.data));
 
   } catch (error) {

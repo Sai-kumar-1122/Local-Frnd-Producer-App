@@ -15,6 +15,8 @@ const initialState = {
   data: null,
   error: null,
   userdata: null, // stores only the user object
+  result:null,
+
 };
 
 export default function userReducer(state = initialState, action) {
@@ -29,6 +31,9 @@ export default function userReducer(state = initialState, action) {
         success: action.payload.success,
         mode: action.payload.mode,
         data: action.payload,
+        result:action.payload.result
+
+
       };
 
     case USER_EDIT_FAILED:
