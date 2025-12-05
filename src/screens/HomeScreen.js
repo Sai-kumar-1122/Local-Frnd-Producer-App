@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   View,
   Text,
@@ -10,6 +10,8 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
+import { useDispatch, useSelector } from "react-redux";
+import { userDatarequest } from "../features/user/userAction";
 
 const { width, height } = Dimensions.get("window");
 
@@ -30,7 +32,25 @@ const activePals = [
 ];
 
 const HomeScreen = () => {
+  const dispatch = useDispatch();
   const navigation = useNavigation();
+
+  const { userdata, loading } = useSelector((state) => state.user);
+
+  useEffect(() => {
+    dispatch(userDatarequest());
+  }, []);
+
+  // ⛔ Prevent crash while data loads
+  if (!userdata || loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text style={{ color: "#fff", fontSize: 18 }}>
+          Loading user data...
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: "#0A001A" }}>
@@ -50,11 +70,14 @@ const HomeScreen = () => {
               <Icon name="bell-outline" size={iconSize(6)} color="#fff" />
             </TouchableOpacity>
 
+            {/* COINS */}
             <View style={styles.coinBox}>
               <Icon name="currency-eth" size={iconSize(5)} color="#FFD700" />
-              <Text style={styles.coinText}>100</Text>
+              <Text style={styles.coinText}>{userdata.coin_balance
+}</Text>
             </View>
 
+            {/* PROFILE PIC */}
             <TouchableOpacity
               onPress={() => navigation.navigate("UplodePhotoScreen")}
             >
@@ -142,7 +165,7 @@ const HomeScreen = () => {
         <View style={{ height: hp(15) }} />
       </ScrollView>
 
-      {/* BOTTOM NAV */}
+      {/* Bottom Nav */}
       <View style={styles.bottomNav}>
         <TouchableOpacity style={styles.navItem}>
           <Icon name="home-outline" size={iconSize(7)} color="#fff" />
@@ -173,8 +196,8 @@ const HomeScreen = () => {
 
 export default HomeScreen;
 
-/* ================== STYLES ================== */
 
+/* STYLES */
 const styles = StyleSheet.create({
   container: { paddingHorizontal: wp(5), paddingTop: hp(5) },
 
@@ -226,7 +249,6 @@ const styles = StyleSheet.create({
     borderColor: "#ff00ff",
   },
 
-  /* OFFER CARD */
   offerCard: {
     marginTop: hp(2),
     backgroundColor: "#1a0033",
@@ -310,7 +332,7 @@ const styles = StyleSheet.create({
     marginHorizontal: wp(0.7),
   },
 
-  /* CONNECT ROW */
+  /* Connect Row */
   connectRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -359,7 +381,6 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
 
-  /* BOTTOM NAV */
   bottomNav: {
     position: "absolute",
     bottom: 0,

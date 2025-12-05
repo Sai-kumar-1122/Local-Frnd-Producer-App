@@ -1,5 +1,12 @@
 // userReducer.js
-import { USER_EDIT_FAILED, USER_EDIT_REQUEST, USER_EDIT_SUCCESS } from "./userType";
+import {
+  USER_DATA_FAILED,
+  USER_DATA_REQUEST,
+  USER_DATA_SUCCESS,
+  USER_EDIT_FAILED,
+  USER_EDIT_REQUEST,
+  USER_EDIT_SUCCESS,
+} from "./userType";
 
 const initialState = {
   loading: false,
@@ -7,6 +14,7 @@ const initialState = {
   mode: null,
   data: null,
   error: null,
+  userdata: null, // stores only the user object
   result:null,
 
 };
@@ -35,6 +43,19 @@ export default function userReducer(state = initialState, action) {
         error: action.payload,
         success: false,
       };
+
+    case USER_DATA_REQUEST:
+      return { ...state, loading: true, error: null };
+
+    case USER_DATA_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        userdata: action.payload.user, // 🔥 store only user object
+      };
+
+    case USER_DATA_FAILED:
+      return { ...state, loading: false, error: action.payload };
 
     default:
       return state;
