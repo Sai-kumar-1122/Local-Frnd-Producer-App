@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from "react";
 import { View, Text, StyleSheet, Animated, Easing } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const AnimatedCircle = ({ delay }) => {
   const scale = useRef(new Animated.Value(0)).current;
@@ -38,6 +39,7 @@ const AnimatedCircle = ({ delay }) => {
         ])
       ).start();
     };
+
     const timeout = setTimeout(animate, delay);
     return () => clearTimeout(timeout);
   }, [delay]);
@@ -56,12 +58,31 @@ const AnimatedCircle = ({ delay }) => {
 };
 
 const LandingScreen = ({ navigation }) => {
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      navigation.replace("Login");
-    }, 3000);
+ 
+   useEffect(() => {
+    const checkLogin = async () => {
+      const token = await AsyncStorage.getItem("twittoke");
+      const user_id = await AsyncStorage.getItem("user_id");
+
+      console.log("Token:", token);
+      console.log("User ID:", user_id);
+
+      // ✅ If no token → go to Login
+      if (!token || !user_id) {
+        navigation.replace("Login");
+        return;
+      }
+
+      if (token && user_id) navigation.replace("Home");
+
+    };
+
+    // wait 3 seconds for animation
+    const timer = setTimeout(checkLogin, 3000);
+
     return () => clearTimeout(timer);
-  }, [navigation]);
+  }, []);
+
 
   return (
     <View style={styles.container}>
@@ -70,6 +91,7 @@ const LandingScreen = ({ navigation }) => {
           <AnimatedCircle delay={0} />
           <AnimatedCircle delay={800} />
           <AnimatedCircle delay={1600} />
+
           <View style={styles.logoContainer}>
             <Text style={styles.logoText}>L🤝F</Text>
           </View>
