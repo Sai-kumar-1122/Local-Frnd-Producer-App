@@ -36,21 +36,30 @@ const HomeScreen = () => {
   const navigation = useNavigation();
 
   const { userdata, loading } = useSelector((state) => state.user);
+  const profilePhotoURL = userdata?.primary_image
+?.photo_url;
+
+  // ⭐ FINAL IMAGE SOURCE
+  const imageUrl = profilePhotoURL
+    ? { uri: profilePhotoURL }
+    : require(".././assets/boy2.jpg");
+ 
+
 
   useEffect(() => {
     dispatch(userDatarequest());
   }, []);
 
   // ⛔ Prevent crash while data loads
-  if (!userdata || loading) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text style={{ color: "#fff", fontSize: 18 }}>
-          Loading user data...
-        </Text>
-      </View>
-    );
-  }
+  // if (!userdata || loading) {
+  //   return (
+  //     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+  //       <Text style={{ color: "#fff", fontSize: 18 }}>
+  //         Loading user data...
+  //       </Text>
+  //     </View>
+  //   );
+  // }
 
   return (
     <View style={{ flex: 1, backgroundColor: "#0A001A" }}>
@@ -73,18 +82,14 @@ const HomeScreen = () => {
             {/* COINS */}
             <View style={styles.coinBox}>
               <Icon name="currency-eth" size={iconSize(5)} color="#FFD700" />
-              <Text style={styles.coinText}>{userdata.coin_balance
-}</Text>
+              <Text style={styles.coinText}> {userdata?.user?.coin_balance ?? 0}</Text>
             </View>
 
             {/* PROFILE PIC */}
             <TouchableOpacity
               onPress={() => navigation.navigate("UplodePhotoScreen")}
             >
-              <Image
-                source={require("../assets/boy4.jpg")}
-                style={styles.profilePic}
-              />
+              <Image source={imageUrl} style={styles.profilePic} />
             </TouchableOpacity>
           </View>
         </View>

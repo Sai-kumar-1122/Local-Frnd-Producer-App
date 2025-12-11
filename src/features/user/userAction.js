@@ -1,5 +1,6 @@
 import { USER_EDIT_FAILED, USER_EDIT_REQUEST, USER_EDIT_SUCCESS } from "./userType";
 import {USER_DATA_REQUEST,USER_DATA_SUCCESS,USER_DATA_FAILED} from "./userType"
+import {USER_LOGOUT_REQUEST} from "./userType"
 
 export const userEditRequest = (data) => ({
   type: USER_EDIT_REQUEST,
@@ -26,4 +27,7 @@ export const userDataSuccess=(data)=>({
 export const userDataFailed=(error)=>({
   type:USER_DATA_FAILED,
   payload:error
+})
+export const userlogoutrequest=()=>({
+type:USER_LOGOUT_REQUEST,
 })

@@ -20,21 +20,18 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const OTP_LENGTH = 6;
 
 const OtpScreen = ({ route, navigation }) => {
-  const { success } = useSelector((state) => state.auth);
-  const { mode } = useSelector((state) => state.auth);
-  const Otp = useSelector((state) => state.auth.Otp);
+    const { success, mode, Otp } = useSelector((state) => state.auth);
+    if (!route.params) return null;   // ✔️ SAFE (after hooks)
+
 
   console.log(success) 
   console.log(mode) 
   console.log(Otp) 
   const { mobile_number } = route.params;
   const dispatch = useDispatch();
+  
 
-  useEffect(() => {
-    if (success === false) {
-      dispatch(userLoginRequest({ mobile_number }));
-    }
-  }, [success, mobile_number, dispatch]);
+
 
   const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(""));
   // callback refs array so focus() always refers to real TextInput
@@ -89,6 +86,7 @@ const OtpScreen = ({ route, navigation }) => {
   const handleotp = () => {
     const otpString = otp.join("");
     dispatch(userOtpRequest({ mobile_number, otp: otpString }));
+    
   };
 
   // OTP response handling unchanged
@@ -104,7 +102,7 @@ const OtpScreen = ({ route, navigation }) => {
       if (Otp.success === true && Otp.token) { 
         
         try {
-          await AsyncStorage.setItem("twittoke", String(Otp.token));
+          await AsyncStorage.setItem("twittoke", (Otp.token));
           await AsyncStorage.setItem("user_id", `${Otp.user.user_id}`);
 
           if (mode === "login") {
