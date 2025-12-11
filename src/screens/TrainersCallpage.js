@@ -55,6 +55,9 @@ const TrainersCallPage = () => {
     )
   ).current;
 
+
+  
+
   useEffect(() => {
     const animateAll = () => {
       const animations = animatedPositions.map((pos) =>
