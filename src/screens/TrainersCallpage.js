@@ -11,12 +11,15 @@ import {
 import LinearGradient from "react-native-linear-gradient";
 import Icon from "react-native-vector-icons/Ionicons";
 import Feather from "react-native-vector-icons/Feather";
-
+import { useDispatch, useSelector } from "react-redux";
+import {randomUserRequest} from "../features/RandomUsers/randomuserAction"
 const { width, height } = Dimensions.get("window");
 const AVATAR_SIZE = 70;
 const GAP = 15;
 
 const TrainersCallPage = () => {
+  const data=useSelector((state)=>state.randomusers)
+  console.log(data)
   const avatars = [
     { name: "Lovely", img: require("../assets/boy1.jpg"), type: "video" },
     { name: "Sana", img: require("../assets/girl1.jpg"), type: "video" },
@@ -56,7 +59,11 @@ const TrainersCallPage = () => {
   ).current;
 
 
-  
+  const dispatch=useDispatch()
+  useEffect(()=>{
+    dispatch(randomUserRequest())
+  },[])
+
 
   useEffect(() => {
     const animateAll = () => {
@@ -76,7 +83,7 @@ const TrainersCallPage = () => {
 
     animateAll();
   }, [animatedPositions]);
-
+  
   return (
     <View style={styles.container}>
       {/* HEADER */}

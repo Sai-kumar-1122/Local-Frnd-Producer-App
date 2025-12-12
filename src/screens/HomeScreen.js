@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { MAIN_BASE_URL } from "../api/baseUrl1";
 import {
   View,
   Text,
@@ -12,8 +13,11 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 import { userDatarequest } from "../features/user/userAction";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {io} from "socket.io-client"
 
 const { width, height } = Dimensions.get("window");
+
 
 // RESPONSIVE HELPERS
 const wp = (v) => (width * v) / 100;
@@ -32,6 +36,8 @@ const activePals = [
 ];
 
 const HomeScreen = () => {
+  let socket;
+
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
@@ -49,6 +55,52 @@ const HomeScreen = () => {
   useEffect(() => {
     dispatch(userDatarequest());
   }, []);
+useEffect(() => {
+  const connectSocketIO = async () => {
+    const token = await AsyncStorage.getItem("twittoke");
+
+    if (!token) {
+      console.log("❌ No token — socket will not connect");
+      return;
+    }
+
+    socket = io(MAIN_BASE_URL, {
+      transports: ["websocket"],
+      auth: { token },
+    });
+
+    // When socket successfully connects
+    socket.on("connect", () => {
+      console.log("✅ Socket connected:", socket.id);
+      socket.emit("userOnline");
+    });
+
+    // When backend rejects connection
+    socket.on("connect_error", (error) => {
+      console.log("❌ Socket connect error:", error.message);
+    });
+
+    // When socket disconnects
+    socket.on("disconnect", (reason) => {
+      console.log("⚠️ Socket disconnected:", reason);
+    });
+
+    // When server sends list of online users
+    socket.on("onlineUsers", (list) => {
+      console.log("🟢 Online users:", list);
+    });
+  };
+
+  connectSocketIO();
+
+  return () => {
+    if (socket) {
+      socket.emit("userOffline");
+      socket.disconnect();
+      console.log("🔴 Socket manually disconnected");
+    }
+  };
+}, []);
 
   // ⛔ Prevent crash while data loads
   // if (!userdata || loading) {
