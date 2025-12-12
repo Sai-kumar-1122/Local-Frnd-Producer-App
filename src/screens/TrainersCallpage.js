@@ -61,6 +61,9 @@ const TrainersCallPage = () => {
     )
   ).current;
 
+
+  
+
   useEffect(() => {
     const animate = (index) => {
       if (!animatedPositions[index]) return;

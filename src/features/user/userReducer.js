@@ -6,6 +6,7 @@ import {
   USER_EDIT_FAILED,
   USER_EDIT_REQUEST,
   USER_EDIT_SUCCESS,
+  USER_LOGOUT_REQUEST
 } from "./userType";
 
 const initialState = {
@@ -20,6 +21,7 @@ const initialState = {
 };
 
 export default function userReducer(state = initialState, action) {
+  console.log(action.payload)
   switch (action.type) {
     case USER_EDIT_REQUEST:
       return { ...state, loading: true, error: null };
@@ -51,11 +53,16 @@ export default function userReducer(state = initialState, action) {
       return {
         ...state,
         loading: false,
-        userdata: action.payload.user, // 🔥 store only user object
+        userdata: action.payload, // 🔥 store only user object
       };
 
     case USER_DATA_FAILED:
       return { ...state, loading: false, error: action.payload };
+
+    case USER_LOGOUT_REQUEST:
+  return { ...initialState };
+
+
 
     default:
       return state;
