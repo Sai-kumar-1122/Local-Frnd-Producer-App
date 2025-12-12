@@ -56,7 +56,13 @@ const TrainersCallPage = () => {
   const initialPositions = generatePositions();
 
   // Only first 5 avatars animated
+
+  // Only first 5 avatars animated
   const animatedPositions = useRef(
+    avatars.map((_, i) =>
+      i < 5
+        ? new Animated.ValueXY({ x: initialPositions[i].x, y: initialPositions[i].y })
+        : null
     avatars.map((_, i) =>
       i < 5
         ? new Animated.ValueXY({ x: initialPositions[i].x, y: initialPositions[i].y })
@@ -80,7 +86,15 @@ const TrainersCallPage = () => {
           toValue: {
             x: initialPositions[index].x + (Math.random() * 30 - 15),
             y: initialPositions[index].y + (Math.random() * 30 - 15),
+            x: initialPositions[index].x + (Math.random() * 30 - 15),
+            y: initialPositions[index].y + (Math.random() * 30 - 15),
           },
+          duration: 2500,
+          useNativeDriver: false,
+        }),
+        Animated.timing(animatedPositions[index], {
+          toValue: initialPositions[index],
+          duration: 2500,
           duration: 2500,
           useNativeDriver: false,
         }),
@@ -90,8 +104,14 @@ const TrainersCallPage = () => {
           useNativeDriver: false,
         }),
       ]).start(() => animate(index));
+        }),
+      ]).start(() => animate(index));
     };
 
+    for (let i = 0; i < 5; i++) {
+      animate(i);
+    }
+  }, []);
     for (let i = 0; i < 5; i++) {
       animate(i);
     }
@@ -183,7 +203,61 @@ const TrainersCallPage = () => {
                   <Feather name="phone" size={12} color="#fff" />
                 )}
               </View>
+
+        {avatars.map((item, index) => {
+          const isAnimated = index < 5;
+
+          return isAnimated ? (
+            <Animated.View
+              key={index}
+              style={[styles.avatarWrapper, animatedPositions[index].getLayout()]}
+            >
+              <View
+                style={[
+                  styles.avatarCircle,
+                  item.type === "highlight" && styles.highlightBorder,
+                ]}
+              >
+                <Image source={item.img} style={styles.avatarImg} />
+              </View>
+              <View style={styles.nameTag}>
+                <Text style={styles.nameText}>{item.name}</Text>
+                {item.type === "video" && (
+                  <Feather name="video" size={12} color="#fff" />
+                )}
+                {item.type === "audio" && (
+                  <Feather name="phone" size={12} color="#fff" />
+                )}
+              </View>
+            </Animated.View>
+          ) : (
+            <View
+              key={index}
+              style={[
+                styles.avatarWrapper,
+                { top: initialPositions[index].y, left: initialPositions[index].x },
+              ]}
+            >
+              <View
+                style={[
+                  styles.avatarCircle,
+                  item.type === "highlight" && styles.highlightBorder,
+                ]}
+              >
+                <Image source={item.img} style={styles.avatarImg} />
+              </View>
+              <View style={styles.nameTag}>
+                <Text style={styles.nameText}>{item.name}</Text>
+                {item.type === "video" && (
+                  <Feather name="video" size={12} color="#fff" />
+                )}
+                {item.type === "audio" && (
+                  <Feather name="phone" size={12} color="#fff" />
+                )}
+              </View>
             </View>
+          );
+        })}
           );
         })}
       </View>
@@ -193,9 +267,18 @@ const TrainersCallPage = () => {
           style={styles.callBox}
           onPress={() => navigation.navigate("VideocallCsreen")}
         >
+        <TouchableOpacity
+          style={styles.callBox}
+          onPress={() => navigation.navigate("VideocallCsreen")}
+        >
           <Text style={styles.callTitle}>Random video Calls</Text>
           <Feather name="video" size={26} color="#fff" />
         </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.callBox}
+          onPress={() => navigation.navigate("AudiocallScreen")}
+        >
 
         <TouchableOpacity
           style={styles.callBox}
@@ -239,7 +322,20 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
+  headerTop: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
   title: { color: "#fff", fontSize: 20, fontWeight: "600" },
+  coinsBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#3A003F",
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 20,
+  },
   coinsBox: {
     flexDirection: "row",
     alignItems: "center",
@@ -251,6 +347,15 @@ const styles = StyleSheet.create({
   coinText: { color: "#fff", marginLeft: 5, marginRight: 10 },
   userIcon: { width: 28, height: 28, borderRadius: 50 },
   filters: { flexDirection: "row", justifyContent: "space-between", marginTop: 10 },
+  filterBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#3A003F",
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 15,
+    marginRight: 8,
+  },
   filterBtn: {
     flexDirection: "row",
     alignItems: "center",
@@ -272,8 +377,25 @@ const styles = StyleSheet.create({
     borderColor: "#FF46D9",
     overflow: "hidden",
   },
+  avatarCircle: {
+    width: AVATAR_SIZE,
+    height: AVATAR_SIZE,
+    borderRadius: AVATAR_SIZE / 2,
+    borderWidth: 3,
+    borderColor: "#FF46D9",
+    overflow: "hidden",
+  },
   highlightBorder: { borderColor: "#00A6FF", borderWidth: 4 },
   avatarImg: { width: "100%", height: "100%" },
+  nameTag: {
+    backgroundColor: "#FF00E6",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 15,
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 5,
+  },
   nameTag: {
     backgroundColor: "#FF00E6",
     paddingHorizontal: 8,
@@ -300,7 +422,45 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  callButtons: {
+    position: "absolute",
+    bottom: 90,
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+  },
+  callBox: {
+    backgroundColor: "#A100D7",
+    width: width * 0.42,
+    height: 90,
+    borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   callTitle: { color: "#fff", fontSize: 14, marginBottom: 5 },
+  bottomNav: {
+    height: 70,
+    flexDirection: "row",
+    backgroundColor: "#20002C",
+    alignItems: "center",
+    justifyContent: "space-around",
+  },
+  centerBtn: {
+    width: 70,
+    height: 70,
+    borderRadius: 40,
+    marginTop: -35,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  centerIcon: {
+    width: 60,
+    height: 60,
+    borderRadius: 35,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   bottomNav: {
     height: 70,
     flexDirection: "row",
