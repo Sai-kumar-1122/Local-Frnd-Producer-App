@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation } from "@react-navigation/native";
 import {
   View,
   Text,
@@ -12,13 +12,21 @@ import {
 import LinearGradient from "react-native-linear-gradient";
 import Icon from "react-native-vector-icons/Ionicons";
 import Feather from "react-native-vector-icons/Feather";
+import { useDispatch, useSelector } from "react-redux";
+import { randomUserRequest } from "../features/RandomUsers/randomuserAction";
 
 const { width, height } = Dimensions.get("window");
 const AVATAR_SIZE = 70;
 const GAP = 15;
 
 const TrainersCallPage = () => {
+  const data = useSelector((state) => state.randomusers);
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(randomUserRequest());
+  }, []);
 
   const avatars = [
     { name: "Lovely", img: require("../assets/boy1.jpg"), type: "video" },
@@ -52,17 +60,16 @@ const TrainersCallPage = () => {
 
   const initialPositions = generatePositions();
 
-  // Only first 5 avatars animated
   const animatedPositions = useRef(
     avatars.map((_, i) =>
       i < 5
-        ? new Animated.ValueXY({ x: initialPositions[i].x, y: initialPositions[i].y })
+        ? new Animated.ValueXY({
+            x: initialPositions[i].x,
+            y: initialPositions[i].y,
+          })
         : null
     )
   ).current;
-
-
-  
 
   useEffect(() => {
     const animate = (index) => {
@@ -85,9 +92,7 @@ const TrainersCallPage = () => {
       ]).start(() => animate(index));
     };
 
-    for (let i = 0; i < 5; i++) {
-      animate(i);
-    }
+    for (let i = 0; i < 5; i++) animate(i);
   }, []);
 
   return (
@@ -95,6 +100,7 @@ const TrainersCallPage = () => {
       <LinearGradient colors={["#4B0082", "#2E004D"]} style={styles.header}>
         <View style={styles.headerTop}>
           <Text style={styles.title}>Personal Training</Text>
+
           <View style={styles.coinsBox}>
             <Icon name="wallet-outline" size={18} color="#FFC300" />
             <Text style={styles.coinText}>100</Text>
@@ -107,14 +113,17 @@ const TrainersCallPage = () => {
             <Icon name="location" size={14} color="#FF3ED8" />
             <Text style={styles.filterText}>Near Me</Text>
           </TouchableOpacity>
+
           <TouchableOpacity style={styles.filterBtn}>
             <Icon name="shuffle" size={14} color="#FF3ED8" />
             <Text style={styles.filterText}>Random</Text>
           </TouchableOpacity>
+
           <TouchableOpacity style={styles.filterBtn}>
             <Icon name="people" size={14} color="#FF3ED8" />
             <Text style={styles.filterText}>Followed</Text>
           </TouchableOpacity>
+
           <TouchableOpacity style={styles.filterBtn}>
             <Icon name="globe-outline" size={14} color="#FF3ED8" />
             <Text style={styles.filterText}>Language</Text>
@@ -131,7 +140,10 @@ const TrainersCallPage = () => {
           return isAnimated ? (
             <Animated.View
               key={index}
-              style={[styles.avatarWrapper, animatedPositions[index].getLayout()]}
+              style={[
+                styles.avatarWrapper,
+                animatedPositions[index] && animatedPositions[index].getLayout(),
+              ]}
             >
               <View
                 style={[
@@ -141,14 +153,11 @@ const TrainersCallPage = () => {
               >
                 <Image source={item.img} style={styles.avatarImg} />
               </View>
+
               <View style={styles.nameTag}>
                 <Text style={styles.nameText}>{item.name}</Text>
-                {item.type === "video" && (
-                  <Feather name="video" size={12} color="#fff" />
-                )}
-                {item.type === "audio" && (
-                  <Feather name="phone" size={12} color="#fff" />
-                )}
+                {item.type === "video" && <Feather name="video" size={12} color="#fff" />}
+                {item.type === "audio" && <Feather name="phone" size={12} color="#fff" />}
               </View>
             </Animated.View>
           ) : (
@@ -167,14 +176,11 @@ const TrainersCallPage = () => {
               >
                 <Image source={item.img} style={styles.avatarImg} />
               </View>
+
               <View style={styles.nameTag}>
                 <Text style={styles.nameText}>{item.name}</Text>
-                {item.type === "video" && (
-                  <Feather name="video" size={12} color="#fff" />
-                )}
-                {item.type === "audio" && (
-                  <Feather name="phone" size={12} color="#fff" />
-                )}
+                {item.type === "video" && <Feather name="video" size={12} color="#fff" />}
+                {item.type === "audio" && <Feather name="phone" size={12} color="#fff" />}
               </View>
             </View>
           );
@@ -186,7 +192,7 @@ const TrainersCallPage = () => {
           style={styles.callBox}
           onPress={() => navigation.navigate("VideocallCsreen")}
         >
-          <Text style={styles.callTitle}>Random video Calls</Text>
+          <Text style={styles.callTitle}>Random Video Calls</Text>
           <Feather name="video" size={26} color="#fff" />
         </TouchableOpacity>
 
@@ -206,14 +212,17 @@ const TrainersCallPage = () => {
         <TouchableOpacity>
           <Icon name="chatbubble-ellipses-outline" size={28} color="#fff" />
         </TouchableOpacity>
+
         <TouchableOpacity style={styles.centerBtn}>
           <LinearGradient colors={["#FF22E9", "#B100D1"]} style={styles.centerIcon}>
             <Icon name="flash" size={32} color="#fff" />
           </LinearGradient>
         </TouchableOpacity>
+
         <TouchableOpacity>
           <Icon name="notifications-outline" size={28} color="#fff" />
         </TouchableOpacity>
+
         <TouchableOpacity>
           <Icon name="person-outline" size={28} color="#fff" />
         </TouchableOpacity>
@@ -226,13 +235,17 @@ export default TrainersCallPage;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#130018" },
+
   header: { paddingTop: 50, paddingHorizontal: 15, paddingBottom: 15 },
+
   headerTop: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
+
   title: { color: "#fff", fontSize: 20, fontWeight: "600" },
+
   coinsBox: {
     flexDirection: "row",
     alignItems: "center",
@@ -241,9 +254,16 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     borderRadius: 20,
   },
+
   coinText: { color: "#fff", marginLeft: 5, marginRight: 10 },
   userIcon: { width: 28, height: 28, borderRadius: 50 },
-  filters: { flexDirection: "row", justifyContent: "space-between", marginTop: 10 },
+
+  filters: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 10,
+  },
+
   filterBtn: {
     flexDirection: "row",
     alignItems: "center",
@@ -253,10 +273,14 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     marginRight: 8,
   },
+
   filterText: { color: "#fff", fontSize: 12, marginLeft: 5 },
+
   mapContainer: { flex: 1 },
   map: { width: "100%", height: "100%", position: "absolute", opacity: 0.28 },
+
   avatarWrapper: { position: "absolute", alignItems: "center" },
+
   avatarCircle: {
     width: AVATAR_SIZE,
     height: AVATAR_SIZE,
@@ -265,8 +289,11 @@ const styles = StyleSheet.create({
     borderColor: "#FF46D9",
     overflow: "hidden",
   },
+
   highlightBorder: { borderColor: "#00A6FF", borderWidth: 4 },
+
   avatarImg: { width: "100%", height: "100%" },
+
   nameTag: {
     backgroundColor: "#FF00E6",
     paddingHorizontal: 8,
@@ -276,7 +303,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 5,
   },
+
   nameText: { color: "#fff", fontSize: 12, marginRight: 4 },
+
   callButtons: {
     position: "absolute",
     bottom: 90,
@@ -285,6 +314,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 20,
   },
+
   callBox: {
     backgroundColor: "#A100D7",
     width: width * 0.42,
@@ -293,7 +323,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+
   callTitle: { color: "#fff", fontSize: 14, marginBottom: 5 },
+
   bottomNav: {
     height: 70,
     flexDirection: "row",
@@ -301,6 +333,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-around",
   },
+
   centerBtn: {
     width: 70,
     height: 70,
@@ -309,6 +342,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+
   centerIcon: {
     width: 60,
     height: 60,
