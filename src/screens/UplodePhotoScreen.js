@@ -9,6 +9,8 @@ import {
   ScrollView,
   Alert,
   PermissionsAndroid,
+  Platform,
+  AppState,
 } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import { launchCamera, launchImageLibrary } from "react-native-image-picker";
@@ -18,105 +20,149 @@ import { userpostphotorequest } from "../features/photo/photoAction";
 
 const { width } = Dimensions.get("window");
 
+/* ================= SAFE ALERT ================= */
+const safeAlert = (title, message) => {
+  if (AppState.currentState === "active") {
+    Alert.alert(title, message);
+  }
+};
+
 const UplodePhotoScreen = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
-  const [photo, setPhoto] = useState(null);
+  const [photo, setPhoto] = useState(null);      // preview
+  const [photoFile, setPhotoFile] = useState(null); // file object
 
+  /* ================= CAMERA PERMISSION ================= */
   const requestCameraPermission = async () => {
+    if (Platform.OS !== "android") return true;
+
     try {
       const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.CAMERA,
         {
           title: "Camera Permission",
-          message: "App needs access to your camera",
-          buttonNeutral: "Ask Me Later",
-          buttonNegative: "Cancel",
+          message: "App needs camera access",
           buttonPositive: "OK",
         }
       );
       return granted === PermissionsAndroid.RESULTS.GRANTED;
-    } catch (err) {
-      console.warn(err);
+    } catch (error) {
+      console.log(error);
       return false;
     }
   };
 
+  /* ================= OPEN CAMERA ================= */
   const openCamera = async () => {
     const permitted = await requestCameraPermission();
     if (!permitted) {
-      Alert.alert("Camera permission denied");
+      safeAlert("Permission", "Camera permission denied");
       return;
     }
 
     launchCamera(
       {
         mediaType: "photo",
-        quality: 1,
+        quality: 0.8,
+        saveToPhotos: true,
       },
       (response) => {
         if (response.didCancel || response.errorCode) return;
-        if (response.assets?.length > 0) setPhoto(response.assets[0].uri);
+
+        const asset = response.assets?.[0];
+        if (!asset) return;
+
+        setPhoto(asset.uri);
+        setPhotoFile({
+          uri: asset.uri,
+          type: asset.type || "image/jpeg",
+          name: `photo_${Date.now()}.jpg`,
+        });
       }
     );
   };
 
+  /* ================= OPEN GALLERY ================= */
   const openGallery = () => {
     launchImageLibrary(
-      { mediaType: "photo", includeBase64: true, quality: 0.7 },
+      {
+        mediaType: "photo",
+        quality: 0.8,
+      },
       (response) => {
-        if (response.didCancel || response.errorMessage) return;
+        if (response.didCancel || response.errorCode) return;
 
-        if (response.assets?.length > 0) {
-          const base64 = `data:${response.assets[0].type};base64,${response.assets[0].base64}`;
-          setPhoto(base64);
-        }
+        const asset = response.assets?.[0];
+        if (!asset) return;
+
+        setPhoto(asset.uri);
+        setPhotoFile({
+          uri: asset.uri,
+          type: asset.type || "image/jpeg",
+          name: `photo_${Date.now()}.jpg`,
+        });
       }
     );
   };
 
+  /* ================= SHOW ACTION SHEET ================= */
   const openSelectOption = () => {
-    Alert.alert(
-      "Select Option",
-      "Choose an option to upload photo",
-      [
-        { text: "Camera", onPress: openCamera },
-        { text: "Gallery", onPress: openGallery },
-        { text: "Cancel", style: "cancel" },
-      ],
-      { cancelable: true }
-    );
+    if (Platform.OS === "ios") {
+      // iOS ActionSheet
+      Alert.alert(
+        "Upload Photo",
+        "Choose option",
+        [
+          { text: "Camera", onPress: openCamera },
+          { text: "Gallery", onPress: openGallery },
+          { text: "Cancel", style: "cancel" },
+        ],
+        { cancelable: true }
+      );
+    } else {
+      // Android Bottom Sheet Style
+      Alert.alert(
+        "Upload Photo",
+        "",
+        [
+          { text: "Camera", onPress: openCamera },
+          { text: "Gallery", onPress: openGallery },
+          { text: "Cancel", style: "cancel" },
+        ],
+        { cancelable: true }
+      );
+    }
   };
 
-  // ======= UPDATED UPLOAD FUNCTION WITH NAVIGATION =======
+  /* ================= UPLOAD PHOTO ================= */
   const handlesendphoto = () => {
-    if (!photo) {
-      Alert.alert("Please select an image first");
-      return; // don't navigate
+    if (!photoFile) {
+      safeAlert("Error", "Please select an image first");
+      return;
     }
 
     const formData = new FormData();
-    formData.append("photo", {
-      uri: photo,
-      type: "image/jpeg",
-      name: `photo_${Date.now()}.jpg`,
-    });
-
-    formData.append("photo_url", photo);
+    formData.append("photo", photoFile);
     formData.append("is_primary", true);
     formData.append("status", "active");
 
-    // Dispatch with callback
     dispatch(
       userpostphotorequest(formData, () => {
-        navigation.navigate("Home"); // navigate after successful upload
+        setTimeout(() => {
+          navigation.reset({
+            index: 0,
+            routes: [{ name: "Home" }],
+          });
+        }, 300);
       })
     );
   };
 
+  /* ================= UI ================= */
   return (
-    <LinearGradient colors={["#4a0f4aff", "#2f0738ff"]} style={styles.container}>
+    <LinearGradient colors={["#4a0f4a", "#2f0738"]} style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Text style={styles.backArrow}>←</Text>
@@ -156,7 +202,7 @@ const UplodePhotoScreen = () => {
 
 export default UplodePhotoScreen;
 
-
+/* ================= STYLES ================= */
 const styles = StyleSheet.create({
   container: { flex: 1 },
   scrollContent: { paddingTop: 40, alignItems: "center" },
@@ -174,17 +220,20 @@ const styles = StyleSheet.create({
   photoCircle: {
     width: 180,
     height: 180,
-    borderRadius: 100,
+    borderRadius: 90,
     backgroundColor: "#eee",
     marginTop: 40,
     justifyContent: "center",
     alignItems: "center",
-    position: "relative",
   },
 
   bigCameraIcon: { fontSize: 50, opacity: 0.4 },
 
-  photoPreview: { width: "100%", height: "100%", borderRadius: 100 },
+  photoPreview: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 90,
+  },
 
   smallCameraBtn: {
     position: "absolute",
@@ -193,7 +242,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     width: 45,
     height: 45,
-    borderRadius: 25,
+    borderRadius: 22,
     justifyContent: "center",
     alignItems: "center",
     elevation: 4,
@@ -201,9 +250,19 @@ const styles = StyleSheet.create({
 
   smallCameraIcon: { fontSize: 22 },
 
-  smileText: { fontSize: 22, color: "#fff", marginTop: 35, fontWeight: "600" },
+  smileText: {
+    fontSize: 22,
+    color: "#fff",
+    marginTop: 35,
+    fontWeight: "600",
+  },
 
-  coinText: { fontSize: 16, color: "#fff", marginTop: 8, textAlign: "center" },
+  coinText: {
+    fontSize: 16,
+    color: "#fff",
+    marginTop: 8,
+    textAlign: "center",
+  },
 
   boldCoin: { fontWeight: "bold" },
 
@@ -217,7 +276,16 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
 
-  uploadBtnText: { fontSize: 18, fontWeight: "600", color: "#000" },
+  uploadBtnText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#000",
+  },
 
-  skipText: { color: "#fff", textDecorationLine: "underline", fontSize: 16, marginBottom: 20 },
+  skipText: {
+    color: "#fff",
+    textDecorationLine: "underline",
+    fontSize: 16,
+    marginBottom: 20,
+  },
 });
