@@ -67,7 +67,8 @@ useEffect(() => {
     socket = io(MAIN_BASE_URL, {
       transports: ["websocket"],
       auth: { token },
-    });
+    }); 
+    
 
     // When socket successfully connects
     socket.on("connect", () => {

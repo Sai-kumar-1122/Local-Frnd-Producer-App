@@ -9,6 +9,7 @@ import {
   Alert,
   KeyboardAvoidingView,
   ScrollView,
+  Dimensions,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import AnimatedLogo from "../components/SampleLogo/AnimatedLogo";
@@ -17,6 +18,7 @@ import { userLoginRequest, userOtpRequest } from "../features/Auth/authAction";
 import { useDispatch, useSelector } from "react-redux";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+const {width}=Dimensions.get("window")
 const OTP_LENGTH = 6;
 
 const OtpScreen = ({ route, navigation }) => {
@@ -140,11 +142,11 @@ const OtpScreen = ({ route, navigation }) => {
               <Icon name="chevron-back" size={26} color="#fff" />
             </TouchableOpacity>
 
-            <View style={styles.logoSpace}>
+            {/* <View style={styles.logoSpace}>
               <AnimatedLogo />
-            </View>
+            </View> */}
 
-            <Text style={styles.title}>Enter the code we sent you</Text>
+            <Text style={styles.title}>Verification Code</Text>
             <Text style={styles.subTitle}>
               We’ve sent a 6-digit code to your number.
             </Text>
@@ -178,8 +180,9 @@ const OtpScreen = ({ route, navigation }) => {
             </View>
 
             <TouchableOpacity style={styles.nextButton} onPress={handleotp}>
-              <Text style={styles.nextText}>Next</Text>
-            </TouchableOpacity>
+  <Text style={styles.nextText}>Verify</Text>
+</TouchableOpacity>
+
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -192,20 +195,16 @@ export default OtpScreen;
 const styles = StyleSheet.create({
   inner: { flex: 1, paddingHorizontal: 25, paddingTop: 60, paddingBottom: 40 },
   backButton: { position: "absolute", top: 40, left: 20, zIndex: 10 },
-  logoSpace: {
-    marginTop: Platform.OS === "ios" ? 44 : 30,
-    marginBottom: 16,
-    alignItems: "center",
-    width: "100%",
-  },
+  
   title: {
-    fontSize: 22,
+    marginTop:"25%",
+    fontSize: 30,
     color: "#fff",
     fontWeight: "700",
     textAlign: "center",
     marginBottom: 10,
   },
-  subTitle: { color: "#aaa", fontSize: 14, textAlign: "center", marginBottom: 40 },
+  subTitle: { color: "#aaa", fontSize: 14, textAlign: "center", marginBottom: 60,marginTop:"3%" },
   otpContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -213,26 +212,48 @@ const styles = StyleSheet.create({
     marginBottom: 25,
   },
   otpInput: {
-    width: 45,
+    width: 49,
     height: 55,
     borderWidth: 1,
-    borderColor: "#b784ff",
+    borderColor: "#C724C7",
     borderRadius: 10,
     color: "#fff",
     fontSize: 20,
     textAlign: "center",
-    backgroundColor: "rgba(255,255,255,0.13)",
+    backgroundColor: "rgba(43, 32, 38, 0.13)",
   },
   resendContainer: { flexDirection: "row", justifyContent: "center", marginTop: 10 },
   resendText: { color: "#aaa", fontSize: 14 },
   resendLink: { color: "#b784ff", fontSize: 14, textDecorationLine: "underline" },
   nextButton: {
-    marginTop: 60,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 10,
-    paddingVertical: 14,
-    backgroundColor: "#b784ff",
-  },
-  nextText: { color: "#fff", fontSize: 16, fontWeight: "600" },
+  marginTop: 60,
+  alignItems: "center",
+  justifyContent: "center",
+  borderRadius: 16,
+  paddingVertical: 14,
+  backgroundColor: "#2a072aff",
+  width: "60%",
+  marginLeft: "23%",
+
+  // ✅ Border
+  borderWidth: 1,
+  borderColor: "#f896f8ff",
+
+  // ✅ Shadow for iOS
+  shadowColor: "#f080f0ff",
+  shadowOffset: { width: 0, height: 0 },
+  shadowOpacity: 0.9,
+  shadowRadius: 19,
+
+  // ✅ Shadow for Android
+  elevation: 20,
+},
+
+nextText: {
+  color: "#fff",
+  fontSize: 16,
+  fontWeight: "600",
+  letterSpacing: 1,
+},
+
 });

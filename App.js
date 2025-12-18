@@ -23,7 +23,8 @@ import PlanScreen from "./src/screens/PlansScreen"
 import UplodePhotoScreen from './src/screens/UplodePhotoScreen';
 import TrainersCallpage from './src/screens/TrainersCallpage';
 import VideocallCsreen from './src/screens/VideocallCsreen';
-import AudiocallScreen from './src/screens/AudiocallScreen'
+import AudiocallScreen from './src/screens/AudiocallScreen';
+import OnboardScreen from './src/screens/OnboardScreen'
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -49,7 +50,7 @@ export default function App() {
  <Stack.Screen name="TrainersCallpage" component={TrainersCallpage} />    
   <Stack.Screen name="VideocallCsreen" component={VideocallCsreen} />    
     <Stack.Screen name="AudiocallScreen" component={AudiocallScreen} />    
-
+<Stack.Screen name='OnboardScreen' component={OnboardScreen}/>
 
    </Stack.Navigator>
       </NavigationContainer>

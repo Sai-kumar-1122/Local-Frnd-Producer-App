@@ -4,6 +4,7 @@ import {
   RANDOM_USER_REQUEST,
   RANDOM_USER_SUCCESS,
   RANDOM_USER_FAILED,
+  
 } from "./randomuserType";
 import { random_users_data } from "../../api/userApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";

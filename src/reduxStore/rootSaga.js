@@ -3,13 +3,15 @@ import authSaga from "../features/Auth/authSaga";
 import userSaga from "../features/user/userSaga";
 import photoSaga from "../features/photo/photoSaga";
 import randomuserSaga from "../features/RandomUsers/randomuserSaga";
-
+import callsSaga from "../features/calls/callSaga"
 export default function* rootSaga() {
   yield all([
     authSaga(),
     userSaga(),
     photoSaga(),
-    randomuserSaga()
+    randomuserSaga(),
+    callsSaga()
+
 
   ]);
 }
