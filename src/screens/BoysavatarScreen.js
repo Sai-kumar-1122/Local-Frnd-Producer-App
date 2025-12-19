@@ -58,7 +58,7 @@ const BoysavatarScreen = ({ navigation }) => {
 
         <TouchableOpacity
           style={styles.continueButton}
-          onPress={() => navigation.navigate("ChoosePlanScreen")}
+          onPress={() => navigation.navigate("Home")}
           disabled={!selectedAvatar}
         >
           <Text style={styles.continueText}>Continue</Text>

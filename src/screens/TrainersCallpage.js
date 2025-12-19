@@ -14,7 +14,7 @@ import Icon from "react-native-vector-icons/Ionicons";
 import Feather from "react-native-vector-icons/Feather";
 import { useDispatch, useSelector } from "react-redux";
 import { randomUserRequest } from "../features/RandomUsers/randomuserAction";
-
+import{audioCallSuccess} from "../features/calls/callAction"
 const { width, height } = Dimensions.get("window");
 const AVATAR_SIZE = 70;
 const GAP = 15;
@@ -94,6 +94,15 @@ const TrainersCallPage = () => {
 
     for (let i = 0; i < 5; i++) animate(i);
   }, []);
+  const handleaudiocall=()=>{
+    dispatch(
+    audioCallSuccess({
+      call_type: "AUDIO",
+      
+    })
+  );
+     navigation.navigate("AudiocallScreen")
+  }
 
   return (
     <View style={styles.container}>
@@ -198,7 +207,7 @@ const TrainersCallPage = () => {
 
         <TouchableOpacity
           style={styles.callBox}
-          onPress={() => navigation.navigate("AudiocallScreen")}
+          onPress={handleaudiocall}
         >
           <Text style={styles.callTitle}>Random Audio Calls</Text>
           <Feather name="phone" size={26} color="#fff" />
