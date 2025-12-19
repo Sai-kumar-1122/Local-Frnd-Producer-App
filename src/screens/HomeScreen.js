@@ -128,9 +128,12 @@ useEffect(() => {
           </View>
 
           <View style={styles.rightHeader}>
-            <TouchableOpacity style={{ marginRight: wp(3) }}>
-              <Icon name="bell-outline" size={iconSize(6)} color="#fff" />
-            </TouchableOpacity>
+         <TouchableOpacity
+  style={{ marginRight: wp(3) }}
+  onPress={() => navigation.navigate("LanguageScreen")}
+>
+  <Icon name="bell-outline" size={iconSize(6)} color="#fff" />
+</TouchableOpacity>
 
             {/* COINS */}
             <View style={styles.coinBox}>

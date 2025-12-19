@@ -140,7 +140,6 @@ const TrainersCallPage = () => {
         </View>
       </LinearGradient>
 
-      {/* MAP */}
       <View style={styles.mapContainer}>
         <Image source={require("../assets/map.jpg")} style={styles.map} />
 
@@ -197,7 +196,6 @@ const TrainersCallPage = () => {
         })}
       </View>
 
-      {/* CALL BUTTONS */}
       <View style={styles.callButtons}>
         <TouchableOpacity
           style={styles.callBox}
@@ -216,7 +214,6 @@ const TrainersCallPage = () => {
         </TouchableOpacity>
       </View>
 
-      {/* BOTTOM NAV */}
       <View style={styles.bottomNav}>
         <TouchableOpacity>
           <Icon name="home-outline" size={28} color="#fff" />

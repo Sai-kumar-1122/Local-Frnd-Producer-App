@@ -110,7 +110,7 @@ const OtpScreen = ({ route, navigation }) => {
           if (mode === "login") {
             navigation.navigate("Home");
           } else {
-            navigation.navigate("DateofBirth");
+            navigation.navigate("LanguageScreen");
           }
         } catch (err) {
           console.log("Error saving token:", err);

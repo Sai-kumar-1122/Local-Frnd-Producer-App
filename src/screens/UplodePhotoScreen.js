@@ -23,6 +23,7 @@ const UplodePhotoScreen = () => {
   const navigation = useNavigation();
 
   const [photo, setPhoto] = useState(null);
+  
 
   const requestCameraPermission = async () => {
     try {
@@ -69,7 +70,7 @@ const UplodePhotoScreen = () => {
         if (response.didCancel || response.errorMessage) return;
 
         if (response.assets?.length > 0) {
-          const base64 = `data:${response.assets[0].type};base64,${response.assets[0].base64}`;
+const base64 = `data:${response.assets[0].type};base64,${response.assets[0].base64}`;
           setPhoto(base64);
         }
       }
@@ -101,6 +102,7 @@ const UplodePhotoScreen = () => {
       uri: photo,
       type: "image/jpeg",
       name: `photo_${Date.now()}.jpg`,
+
     });
 
     formData.append("photo_url", photo);

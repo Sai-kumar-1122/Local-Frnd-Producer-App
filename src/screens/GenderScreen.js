@@ -15,64 +15,72 @@ const { width } = Dimensions.get("window");
 const GenderScreen = ({ navigation }) => {
   const [selectedGender, setSelectedGender] = useState(null);
 
+  /* ---------- HANDLE CONTINUE ---------- */
+  const handleContinue = () => {
+    if (selectedGender === "male") {
+      navigation.navigate("BoysavatarScreen");
+    } else if (selectedGender === "female") {
+      navigation.navigate("GirlsavatarScreen");
+    }
+  };
+
   return (
     <BackgroundPagesOne>
+      <View style={styles.container}>
+        {/* Logo */}
+        <AnimatedLogo />
 
-    <View style={styles.container}>
-      {/* Logo */}
-      <AnimatedLogo />
+        {/* Title */}
+        <Text style={styles.title}>Select your gender</Text>
 
-      {/* Title */}
-      <Text style={styles.title}>Select your gender</Text>
+        {/* Gender Cards */}
+        <View style={styles.cardRow}>
+          {/* MALE */}
+          <Pressable onPress={() => setSelectedGender("male")}>
+            <View
+              style={[
+                styles.card,
+                selectedGender === "male" && styles.selectedCard,
+              ]}
+            >
+              <Image
+                source={require("../assets/boy1.jpg")}
+                style={styles.avatar}
+              />
+            </View>
+            <Text style={styles.label}>Male</Text>
+          </Pressable>
 
-      {/* Gender Cards */}
-      <View style={styles.cardRow}>
-        {/* MALE */}
-        <Pressable onPress={() => setSelectedGender("male")}>
-          <View
-            style={[
-              styles.card,
-              selectedGender === "male" && styles.selectedCard,
-            ]}
-          >
-            <Image
-              source={require("../assets/boy1.jpg")}
-              style={styles.avatar}
-            />
-          </View>
-          <Text style={styles.label}>Male</Text>
-        </Pressable>
+          {/* FEMALE */}
+          <Pressable onPress={() => setSelectedGender("female")}>
+            <View
+              style={[
+                styles.card,
+                selectedGender === "female" && styles.selectedCard,
+              ]}
+            >
+              <Image
+                source={require("../assets/girl1.jpg")}
+                style={styles.avatar}
+              />
+            </View>
+            <Text style={styles.label}>Female</Text>
+          </Pressable>
+        </View>
 
-        {/* FEMALE */}
-        <Pressable onPress={() => setSelectedGender("female")}>
-          <View
-            style={[
-              styles.card,
-              selectedGender === "female" && styles.selectedCard,
-            ]}
-          >
-            <Image
-              source={require("../assets/girl1.jpg")}
-              style={styles.avatar}
-            />
-          </View>
-          <Text style={styles.label}>Female</Text>
+        {/* Continue Button */}
+        <Pressable
+          style={[
+            styles.button,
+            selectedGender ? styles.buttonActive : styles.buttonDisabled,
+          ]}
+          disabled={!selectedGender}
+          onPress={handleContinue}
+        >
+          <Text style={styles.buttonText}>Continue</Text>
         </Pressable>
       </View>
-
-      {/* Continue Button */}
-      <Pressable
-        style={[
-          styles.button,
-          selectedGender ? styles.buttonActive : styles.buttonDisabled,
-        ]}
-        disabled={!selectedGender}
-        onPress={() => navigation.navigate("NextScreen")}
-      >
-        <Text style={styles.buttonText}>Continue</Text>
-      </Pressable>
-    </View>
-        </BackgroundPagesOne>
+    </BackgroundPagesOne>
   );
 };
 
@@ -93,9 +101,8 @@ const styles = StyleSheet.create({
     fontSize: 31,
     fontWeight: "600",
     textAlign: "center",
-    marginVertical: 30,
-    marginTop:-55,
-    marginBottom:50
+    marginTop: -55,
+    marginBottom: 50,
   },
 
   cardRow: {
@@ -136,12 +143,12 @@ const styles = StyleSheet.create({
 
   button: {
     marginTop: "auto",
-    marginLeft:20,
+    marginLeft: 20,
     paddingVertical: 15,
     borderRadius: 14,
     marginBottom: 60,
-    width:"90%",
-    height:"7%"
+    width: "90%",
+    height: "7%",
   },
 
   buttonActive: {

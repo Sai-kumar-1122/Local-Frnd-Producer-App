@@ -5,7 +5,8 @@ const initialState={
     error:null
 }
 
-export default function photoReduce(state=initialState,action){
+export default function photoReducer(state=initialState,action){
+   console.log(action.payload)
     switch (action.type) {
         case USER_POST_PHOTO_REQUEST:
             

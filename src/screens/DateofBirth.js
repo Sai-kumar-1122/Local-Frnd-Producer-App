@@ -22,7 +22,13 @@ const DobScreen = ({ navigation }) => {
     Number(year) <= new Date().getFullYear() - 18;
 
   const handleContinue = () => {
-    const dob = `${day}/${month}/${year}`;
+    const dob = `${day}-${month}-${year}`;
+     dispatch(
+                  newUserDataRequest({dob
+                    
+                  })
+                );
+    console.log(dob)
     navigation.navigate("LocationScreen", { dob });
   };
 
