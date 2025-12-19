@@ -6,7 +6,13 @@ import {
   USER_EDIT_FAILED,
   USER_EDIT_REQUEST,
   USER_EDIT_SUCCESS,
-  USER_LOGOUT_REQUEST
+  USER_LOGOUT_REQUEST,
+  
+} from "./userType";
+import {
+  NEW_USER_DATA_REQUEST,
+  NEW_USER_DATA_SUCCESS,
+  NEW_USER_DATA_FAILED,
 } from "./userType";
 
 const initialState = {
@@ -17,6 +23,8 @@ const initialState = {
   error: null,
   userdata: null, // stores only the user object
   result:null,
+    newUserData: null, // ✅ RENAMED
+
 
 };
 
@@ -58,11 +66,48 @@ export default function userReducer(state = initialState, action) {
 
     case USER_DATA_FAILED:
       return { ...state, loading: false, error: action.payload };
+      
+
+      case NEW_USER_DATA_REQUEST:
+      return { ...state, loading: true, error: null };
+
+    case NEW_USER_DATA_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        userdata: action.payload, // 🔥 store only user object
+      };
+
+    case NEW_USER_DATA_FAILED:
+      return { ...state, loading: false, error: action.payload };
+      
 
     case USER_LOGOUT_REQUEST:
   return { ...initialState };
 
 
+   case NEW_USER_DATA_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+
+    case NEW_USER_DATA_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        success: true,
+        newUserData: action.payload, // ✅ UPDATED
+      };
+
+    case NEW_USER_DATA_FAILED:
+      return {
+        ...state,
+        loading: false,
+        success: false,
+        error: action.payload,
+      };
 
     default:
       return state;

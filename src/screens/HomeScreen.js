@@ -67,7 +67,8 @@ useEffect(() => {
     socket = io(MAIN_BASE_URL, {
       transports: ["websocket"],
       auth: { token },
-    });
+    }); 
+    
 
     // When socket successfully connects
     socket.on("connect", () => {
@@ -129,7 +130,7 @@ useEffect(() => {
           <View style={styles.rightHeader}>
          <TouchableOpacity
   style={{ marginRight: wp(3) }}
-  onPress={() => navigation.navigate("GirlsavatarScreen")}
+  onPress={() => navigation.navigate("LanguageScreen")}
 >
   <Icon name="bell-outline" size={iconSize(6)} color="#fff" />
 </TouchableOpacity>

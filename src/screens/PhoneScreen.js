@@ -11,12 +11,13 @@ import {
   Platform,
   ScrollView,
   TouchableWithoutFeedback,
-  Keyboard
+  Keyboard,
+  Dimensions
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import BackgroundPagesOne from "../components/BackgroundPages/BackgroundPagesOne";
 import AnimatedLogo from "../components/SampleLogo/AnimatedLogo";
-
+const {height}=Dimensions.get("window")
 const PhoneScreen = ({ navigation }) => {
   const dispatch = useDispatch();
 
@@ -79,7 +80,7 @@ useEffect(() => {
                 <Icon name="chevron-back" size={26} color="#fff" />
               </TouchableOpacity>
 
-              <View style={styles.logoSpace}>
+              <View style={styles.animatedLogo}>
                 <AnimatedLogo />
               </View>
 
@@ -106,7 +107,8 @@ useEffect(() => {
               </TouchableOpacity>
 
               <Text style={styles.infoText}>
-                We’ll text you a code to verify you're really you.
+               We’ll text you a code to verify you’re really you.{"\n"}
+What happens if your number changes
               </Text>
 
               <TouchableOpacity
@@ -151,41 +153,43 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   title: {
-    fontSize: 21,
+     marginTop: -height * 0.09,
+    fontSize: 28,
     color: "#fff",
     fontWeight: "bold",
     textAlign: "center",
-    marginBottom: 32,
+    marginBottom: 60,
   },
   inputContainer: {
     width: "100%",
+    height:"10%",
     marginBottom: 5,
   },
   label: {
     color: "#fff",
-    fontSize: 14,
-    marginBottom: 7,
+    fontSize: 20,
+    marginBottom: 23,
     fontWeight: "500",
     marginLeft: 2,
   },
   input: {
     borderWidth: 1,
-    borderColor: "#b784ff",
+    borderColor: "#C724C7",
     borderRadius: 10,
     paddingHorizontal: 14,
-    paddingVertical: Platform.OS === "ios" ? 13 : 9,
-    color: "#fff",
-    fontSize: 17,
-    backgroundColor: "rgba(255,255,255,0.08)",
+ paddingVertical: Platform.OS === "ios" ? 19 : 16, // ⬅️ BIGGER HEIGHT
+    fontSize: 18,                                     // ⬅️ BIGGER TEXT    color: "#fff",
+    color:"#f7f4f7ff",
+    backgroundColor: "rgba(245, 233, 233, 0.08)",
   },
   infoText: {
-    color: "#aaa",
-    fontSize: 13,
-    marginTop: 22,
+    color: "#f1ededff",
+    fontSize: 16,
+    marginTop: 50,
     textAlign: "center",
   },
   nextButton: {
-    marginTop: 40,
+    marginTop: 100,
     width: "100%",
     alignItems: "center",
     justifyContent: "center",
@@ -196,9 +200,13 @@ const styles = StyleSheet.create({
   nextActive: { backgroundColor: "#bb78ee" },
   nextText: {
     color: "#fff",
-    fontSize: 17,
+    fontSize: 20,
     fontWeight: "bold",
     letterSpacing: 1,
+  },
+  animatedLogo: {
+    marginTop: -height * 0.06,   // ⬆️ pushes logo up
+    marginBottom: height * 0.02,
   },
 });
 
