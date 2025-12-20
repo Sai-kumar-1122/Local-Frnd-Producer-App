@@ -11,7 +11,7 @@ import {
 import Geolocation from "@react-native-community/geolocation";
 import { useDispatch, useSelector } from "react-redux";
 import { useRoute, useNavigation } from "@react-navigation/native";
-import { userEditRequest } from "../features/user/userAction";
+import { newUserDataRequest, userEditRequest } from "../features/user/userAction";
 import BackgroundPagesOne from "../components/BackgroundPages/BackgroundPagesOne";
 
 /* ================= UX POPUP (NO HOOKS INSIDE) ================= */
@@ -75,28 +75,19 @@ const LocationScreen = () => {
     }
   };
 
-  /* ---------- SUBMIT ---------- */
+  /* ---------- SUBMIT (ONLY CHANGE IS HERE) ---------- */
   const handleContinue = () => {
     if (!location) return;
 
     dispatch(
-      userEditRequest({
-        name,
-        gender,
-        date_of_birth,
-        age,
+      newUserDataRequest({
         location_lat: location.latitude,
         location_log: location.longitude,
       })
     );
-  };
 
-  /* ---------- NAVIGATION ---------- */
-  useEffect(() => {
-    if (success === true) {
-      navigation.navigate("GenderScreen");
-    }
-  }, [success, navigation]);
+    navigation.navigate("GenderScreen");
+  };
 
   return (
     <BackgroundPagesOne>
