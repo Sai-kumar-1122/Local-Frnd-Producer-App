@@ -83,7 +83,7 @@ const ChooseAvatarScreen = () => {
         {/* CONTINUE BUTTON */}
         <TouchableOpacity
           style={styles.continueButton}
-          onPress={() => navigation.navigate("BoysavatarScreen")}
+          onPress={() => navigation.navigate("ReciverHomeScreen")}
           disabled={!selectedAvatar} 
         >
           <Text style={styles.continueText}>Continue</Text>

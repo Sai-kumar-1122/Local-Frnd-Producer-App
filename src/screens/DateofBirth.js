@@ -9,11 +9,14 @@ import {
   StyleSheet,
 } from "react-native";
 import BackgroundPagesOne from "../components/BackgroundPages/BackgroundPagesOne";
+import { useDispatch } from "react-redux";
+import { newUserDataRequest } from "../features/user/userAction";
 
 const DobScreen = ({ navigation }) => {
   const [month, setMonth] = useState("");
   const [day, setDay] = useState("");
   const [year, setYear] = useState("");
+  const dispatch=useDispatch();
 
   const isValid =
     month.length === 2 &&
