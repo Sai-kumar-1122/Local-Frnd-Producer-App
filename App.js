@@ -28,6 +28,7 @@ import BoysavatarScreen from './src/screens/BoysavatarScreen';
 import ChoosePlanScreen from './src/screens/ChoosePlanScreen';
 import OnboardScreen from './src/screens/OnboardScreen'
 import LanguageScreen from './src/screens/LanguageScreen'
+import ReciverHomeScreen from './src/screens/ReciverHomeScreen'
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -58,6 +59,8 @@ export default function App() {
       <Stack.Screen name='BoysavatarScreen' component={BoysavatarScreen}/>
   <Stack.Screen name='ChoosePlanScreen' component={ChoosePlanScreen}/>
 <Stack.Screen name='LanguageScreen' component={LanguageScreen}/>
+<Stack.Screen name='ReciverHomeScreen' component={ReciverHomeScreen}/>
+
    </Stack.Navigator>
       </NavigationContainer>
     </Provider>

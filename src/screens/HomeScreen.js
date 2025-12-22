@@ -130,7 +130,7 @@ useEffect(() => {
           <View style={styles.rightHeader}>
          <TouchableOpacity
   style={{ marginRight: wp(3) }}
-  onPress={() => navigation.navigate("GenderScreen")}
+  // onPress={() => navigation.navigate("GenderScreen")}
 >
   <Icon name="bell-outline" size={iconSize(6)} color="#fff" />
 </TouchableOpacity>

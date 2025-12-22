@@ -17,6 +17,7 @@ const DobScreen = ({ navigation }) => {
   const [month, setMonth] = useState("");
   const [day, setDay] = useState("");
   const [year, setYear] = useState("");
+  
 
   const isValid =
     month.length === 2 &&

@@ -56,7 +56,7 @@ const ChooseAvatarScreen = () => {
     );
 
     // ✅ NAVIGATE AFTER DISPATCH
-    navigation.navigate("BoysavatarScreen");
+    navigation.navigate("ReciverHomeScreen");
   };
 
   return (
